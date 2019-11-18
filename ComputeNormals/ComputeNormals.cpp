@@ -11,7 +11,7 @@ void compute_normals() {
 	const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_xyzrgb(new pcl::PointCloud<pcl::PointXYZRGB>);
 	const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>);
 
-	// Read in point cloud  into cloud_xyzrgb
+	// Read in point cloud into cloud_xyzrgb
 	const std::string fname = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/ptcloud_hd00000380_clipped_float.ply";
 	pcl::io::loadPLYFile(fname, *cloud_xyzrgb);
 
