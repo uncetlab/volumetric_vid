@@ -3,11 +3,12 @@ cmake_minimum_required (VERSION 3.8)
 # set the project name
 project(SPSR)
 
-#[[
+
+#
 # specify the c++ standard
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-]]
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# set(CMAKE_CXX_EXTENSIONS OFF)
 
 # find and loads settings from PCL
 # sets:
