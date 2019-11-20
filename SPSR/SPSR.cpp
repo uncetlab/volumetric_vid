@@ -1,5 +1,6 @@
 #include <pcl/point_types.h>
 #include <pcl/surface/poisson.h>
+#include <pcl/surface/vtk_smoothing/vtk_mesh_quadric_decimation.h>
 #include <pcl/io/ply_io.h>
 #include <boost/filesystem.hpp>
 #include <iostream>
@@ -31,7 +32,6 @@ int main(int argc, char** argv)
 		// Get input / output paths
 		boost::filesystem::directory_entry entry = *it++;
 		boost::filesystem::path in_p = entry.path();
-		boost::filesystem::path out_p = in_p.parent_path().parent_path() / "pcl_mesh" / in_p.filename();
 
 		//std::cout << entry << '\n' << in_p << '\n' << out_p << '\n';
 
@@ -40,11 +40,30 @@ int main(int argc, char** argv)
 		pcl::io::loadPLYFile(in_p.string(), *cloud_xyzrgbnormals);
 
 		// Compute reconstructed mesh
-		pcl::PolygonMesh output;
-		compute_mesh(cloud_xyzrgbnormals, output, default_depth, default_solver_divide, default_iso_divide, default_point_weight);
+		pcl::PolygonMesh::Ptr output(boost::make_shared<pcl::PolygonMesh>());
+		compute_mesh(cloud_xyzrgbnormals, *output, default_depth, default_solver_divide, default_iso_divide, default_point_weight);
+
+		// Decimate mesh
+		float percent_faces_removed = 0.9;
+
+		pcl::PolygonMesh decimated_output;
+		pcl::MeshQuadricDecimationVTK decimator;
+		decimator.setTargetReductionFactor(percent_faces_removed);
+		decimator.setInputMesh(output);
+		decimator.process(decimated_output);
+
+		// Get / create output paths
+		std::string decimated_folder_str = "decimated_";
+		decimated_folder_str += std::to_string(percent_faces_removed);
+
+		boost::filesystem::path out_p = in_p.parent_path().parent_path() / "pcl_mesh" / "full" / in_p.filename();
+		boost::filesystem::create_directory(out_p.parent_path());
+		boost::filesystem::path decimated_out_p = in_p.parent_path().parent_path() / "pcl_mesh" / decimated_folder_str / in_p.filename();
+		boost::filesystem::create_directory(decimated_out_p.parent_path());
 
 		// Save reconstructed mesh to ply
-		pcl::io::savePLYFile(out_p.string(), output);
+		pcl::io::savePLYFile(out_p.string(), *output);
+		pcl::io::savePLYFile(decimated_out_p.string(), decimated_output);
 	}
 
 	return (0);
