@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 	boost::filesystem::directory_iterator it{ input_dir };
 	while (it != boost::filesystem::directory_iterator{}) {
 
-		// Get input / output paths
+		// Get input paths
 		boost::filesystem::directory_entry entry = *it++;
 		boost::filesystem::path in_p = entry.path();
 
