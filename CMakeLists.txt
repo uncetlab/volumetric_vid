@@ -8,3 +8,5 @@ project ("VolumetricVidCMake")
 # Include sub-projects.
 add_subdirectory ("ComputeNormals")
 add_subdirectory ("SPSR")
+add_subdirectory ("Visualizer")
+
