@@ -9,4 +9,4 @@ project ("VolumetricVidCMake")
 add_subdirectory ("ComputeNormals")
 add_subdirectory ("SPSR")
 add_subdirectory ("Visualizer")
-
+add_subdirectory ("MLS")
