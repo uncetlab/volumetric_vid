@@ -23,7 +23,7 @@ link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 # add the executable
-add_executable(ComputeSPSR "SPSR.cpp")
+add_executable(ComputeSPSR "main.cpp" "SPSR.cpp")
 
 # specify include dirs for given target
 target_link_libraries(ComputeSPSR ${PCL_LIBRARIES})
