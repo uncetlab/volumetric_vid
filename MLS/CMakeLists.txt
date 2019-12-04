@@ -21,7 +21,8 @@ link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 # add the executable
-add_executable(MLS "MLS.cpp")
+add_executable(MLS "MLS.cpp" "../SPSR/SPSR.cpp")
 
 # specify include dirs for given target
 target_link_libraries(MLS ${PCL_LIBRARIES})
+target_include_directories(MLS PUBLIC "../SPSR")
