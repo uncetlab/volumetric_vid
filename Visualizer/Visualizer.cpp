@@ -1,11 +1,13 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/io/obj_io.h>
+#include <pcl/io/vtk_lib_io.h>
 #include <boost/filesystem.hpp>
 #include <vector>
 #include <stdio.h>
+//#include <type_traits>  // for checking template type
 
-/* loads all meshes in `dir_name` and stores them in `meshes`. assumes each file is a .ply mesh
+/* loads all PolygonMeshes (saved as .ply files) from a dir (assumes every file is a .ply file)
  *
  */
 void load_meshes_from_dir(const std::string dir_name, std::vector<pcl::PolygonMeshPtr> &meshes, std::vector<std::string> &mesh_ids) {
@@ -14,21 +16,104 @@ void load_meshes_from_dir(const std::string dir_name, std::vector<pcl::PolygonMe
 	boost::filesystem::directory_iterator it{ input_dir };
 	int i = 0;
 	while (it != boost::filesystem::directory_iterator{}) {
-		printf("loading mesh %i\n", i++);
 
 		// Get input / output paths
 		boost::filesystem::directory_entry entry = *it++;
-		boost::filesystem::path in_p = entry.path();
+		boost::filesystem::path path = entry.path();
 		//std::string mesh_id = in_p.filename().string();
-		std::string mesh_id = in_p.string();
+		std::string mesh_path = path.string();
 
 		pcl::PolygonMeshPtr mesh(boost::make_shared<pcl::PolygonMesh>());
-		pcl::io::loadPLYFile(mesh_id, *mesh);
+		if (boost::filesystem::extension(path) == ".obj") {
+			pcl::io::loadPolygonFileOBJ(mesh_path, *mesh);
+		} else if (boost::filesystem::extension(path) == ".ply") {
+			pcl::io::loadPLYFile(mesh_path, *mesh);
+		} else {
+			printf("skipping file with extension: %s\n", boost::filesystem::extension(path).c_str());
+			continue;
+		}
+		printf("loading PolygonMesh %i\n", i++);
+
 
 		meshes.push_back(mesh);
-		mesh_ids.push_back(mesh_id);
+		mesh_ids.push_back(mesh_path);
 	}
 }
+
+/* loads all TextureMeshes (saved as .obj files) from a dir (assumes every file is a .obj file)
+ *
+ */
+void load_meshes_from_dir(const std::string dir_name, std::vector<pcl::TextureMeshPtr> &meshes, std::vector<std::string> &mesh_ids) {
+	boost::filesystem::path input_dir(dir_name);
+
+	boost::filesystem::directory_iterator it{ input_dir };
+	int i = 0;
+	while (it != boost::filesystem::directory_iterator{}) {
+		// Get input / output paths
+		boost::filesystem::directory_entry entry = *it++;
+		boost::filesystem::path path = entry.path();
+
+		if (boost::filesystem::extension(path) != ".obj") {
+			printf("skipping file with extension: %s\n", boost::filesystem::extension(path).c_str());
+			continue;
+		}
+		printf("loading TextureMesh %i\n", i++);
+
+		std::string mesh_path = path.string();
+
+		pcl::TextureMeshPtr mesh(boost::make_shared<pcl::TextureMesh>());
+		//pcl::io::loadOBJFile(mesh_path, *mesh);		// this is broken for TextureMeshes with multiple materials, 
+		//											// all texture coordinates get loaded into the first submesh 
+		//											// (any other submeshes get no texture coordinates)
+
+		// quick hack  -- this just uses material_0 for every submesh, since visualization only supports 1 material
+		// (this causes each submesh other than the first to look wrong)
+		pcl::io::loadPolygonFileOBJ(mesh_path, *mesh);
+		pcl::TextureMesh mesh2;
+		pcl::io::loadOBJFile(mesh_path, mesh2);
+		mesh->tex_materials.clear();
+		mesh->tex_materials.push_back(mesh2.tex_materials[0]);
+
+		meshes.push_back(mesh);
+		mesh_ids.push_back(mesh_path);
+	}
+}
+
+///* loads all PolygonMeshes / TextureMeshes from a dir (assumes every file is a .obj / .ply file)
+// * assumes PolygonMeshes are stored in .ply files
+// * assumes TextureMeshes are stored in .obj files
+// *
+// * input:
+// *   - template type T: PolygonMeshPtr or TextureMeshPtr
+// */
+//template <class T>
+//void load_meshes_from_dir(const std::string dir_name, std::vector<T> &meshes, std::vector<std::string> &mesh_ids) {
+//	boost::filesystem::path input_dir(dir_name);
+//
+//	boost::filesystem::directory_iterator it{ input_dir };
+//	int i = 0;
+//	while (it != boost::filesystem::directory_iterator{}) {
+//		printf("loading mesh %i\n", i++);
+//
+//		// Get input / output paths
+//		boost::filesystem::directory_entry entry = *it++;
+//		boost::filesystem::path in_p = entry.path();
+//		std::string mesh_path = in_p.string();
+//
+//		T mesh;
+//		if (std::is_same<T, pcl::TextureMeshPtr>::value) {
+//			pcl::io::loadOBJFile(mesh_path, *mesh);
+//		}
+//		else if (std::is_same<T, pcl::PolygonMeshPtr>::value) {
+//			pcl::io::loadPLYFile(mesh_path, *mesh);
+//		}
+//		pcl::io::loadOBJFile(mesh_path, *mesh);
+//
+//		meshes.push_back(mesh);
+//		mesh_ids.push_back(mesh_path);
+//		
+//	}
+//}
 
 /* loads all clouds in `dir_name` and stores them in `clouds`. assumes each file is a .ply point cloud
 */
@@ -60,12 +145,26 @@ void load_clouds_from_dir(const std::string dir_name, std::vector<pcl::PointClou
 
 
 /* Visualize a single mesh seq
+ * (method takes type as an arg instead of being templated bc we are unable to easily cast templates in c++, 
+ *  and the PCL methods themselves are not templated, requiring different function calls dependent on type)
+ *
+ * inputs:
+ *   - // template type T: PolygonMeshPtr or TextureMeshPtr
+ *   - dir_name:
+ *   - type: "PolygonMesh" or "TextureMesh" are valid
 */
-void viz_mesh_seq(const std::string dir_name) {
+void viz_mesh_seq(const std::string dir_name, const std::string type = "PolygonMesh") {
 	// Load meshes
-	std::vector<pcl::PolygonMeshPtr> meshes;
+	std::vector<pcl::PolygonMeshPtr> p_meshes;
+	std::vector<pcl::TextureMeshPtr> t_meshes;
 	std::vector<std::string> mesh_ids;
-	load_meshes_from_dir(dir_name, meshes, mesh_ids);
+
+	if (type == "PolygonMesh") {
+		load_meshes_from_dir(dir_name, p_meshes, mesh_ids);
+	}
+	else if (type == "TextureMesh") {
+		load_meshes_from_dir(dir_name, t_meshes, mesh_ids);
+	}
 
 	// Setup visualizer
 	boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
@@ -87,17 +186,22 @@ void viz_mesh_seq(const std::string dir_name) {
 	// Loop through meshes to display animation
 	int mesh_idx = 0;
 	while (!viewer->wasStopped()) {
-		viewer->addPolygonMesh(*meshes[mesh_idx], mesh_ids[mesh_idx], 0);
+		// ADD meshes
+		if (type == "PolygonMesh") {
+			viewer->addPolygonMesh(*p_meshes[mesh_idx], mesh_ids[mesh_idx], 0);
+		} else if (type == "TextureMesh") {
+			viewer->addTextureMesh(*t_meshes[mesh_idx], mesh_ids[mesh_idx], 0);
+		}
 
 		viewer->spinOnce(70);  // affects speed (time in ms each frame is shown for)
 		//viewer->spinOnce(33);  // ~ 24 fps (1000 / 30fps = 33.33) kinect captures between 15-30fps depending on lighting? not sure
 		//viewer->spinOnce();
 
+		// REMOVE meshes
 		viewer->removePolygonMesh(mesh_ids[mesh_idx]);
-		if (mesh_idx == meshes.size() - 1) {
+		if (mesh_idx == mesh_ids.size() - 1) {
 			mesh_idx = 0;
-		}
-		else {
+		} else {
 			mesh_idx++;
 		}
 	}
@@ -307,7 +411,7 @@ void viz_single_obj(const std::string obj_path) {
 	viewer->addTextureMesh(*mesh, "mesh");
 
 	viewer->spinOnce(1, true);
-	viewer->saveScreenshot("C:/Users/maxhu/Desktop/uvatlas_example/test_panoptic_screenshot.png");
+	//viewer->saveScreenshot("C:/Users/maxhu/Desktop/uvatlas_example/test_panoptic_screenshot.png");
 	while (!viewer->wasStopped()) {
 		viewer->spinOnce(100);
 		boost::this_thread::sleep(boost::posix_time::microseconds(100000));
@@ -318,18 +422,12 @@ int main(int argc, char** argv) {
 
 	//// visualize single mesh seq
 	//std::string dir_name = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/pcl_mesh/decimated_0.900000";
-	//viz_mesh_seq(dir_name);
+	//viz_mesh_seq(dir_name, "PolygonMesh");
 
 	//// SPSR on MLS smoothed points vs non-MLS smoothed points (90% decimated)
 	//std::string dir_name1 = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/pcl_mesh/decimated_0.900000";
 	//std::string dir_name2 = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/cloud_mls/spsr_decimated_0.900000";
 	//viz_seq_dual(dir_name1, dir_name2, "Reconstruction without MLS", "Reconstruction with MLS");
-
-	//// visualize single obj mesh with tex
-	////std::string obj_path = "C:/Users/maxhu/Desktop/uvatlas_example/cube.obj";
-	////std::string obj_path = "C:/Users/maxhu/Desktop/uvatlas_example/test_cube_remapped.obj";
-	//std::string obj_path = "C:/Users/maxhu/Desktop/uvatlas_example/test_panoptic.obj";
-	//viz_single_obj(obj_path);
 
 	//// MLS smoothed PC vs non-MLS smoothed PC
 	//std::string path1 = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/normals_cleaned/ptcloud_hd00000380_normals_cleaned.ply";
@@ -341,8 +439,23 @@ int main(int argc, char** argv) {
 	//std::string dir_name2 = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/cloud_mls/spsr_decimated_0.900000";
 	//viz_seq_dual(dir_name1, dir_name2, "No decimation", "90% decimation");
 
-	// PC on left, reconstruction on right
-	std::string dir_name1 = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/cloud_mls";
-	std::string dir_name2 = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/cloud_mls/spsr_full";
-	viz_seq_dual(dir_name1, dir_name2, "", "", "cloud", "mesh");
+	//// PC on left, reconstruction on right
+	//std::string dir_name1 = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/cloud_mls";
+	//std::string dir_name2 = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/cloud_mls/spsr_full";
+	//viz_seq_dual(dir_name1, dir_name2, "", "", "cloud", "mesh");
+
+	//// visualize single obj mesh with tex
+	////std::string obj_path = "C:/Users/maxhu/Desktop/uvatlas_example/cube.obj";
+	////std::string obj_path = "C:/Users/maxhu/Desktop/uvatlas_example/test_cube_remapped.obj";
+	//std::string obj_path = "C:/Users/maxhu/Desktop/uvatlas_example/test_panoptic.obj";
+	//viz_single_obj(obj_path);
+
+	// visualize TextureMesh
+	std::string dir_name = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh";
+	viz_mesh_seq(dir_name, "TextureMesh");
+	//viz_mesh_seq(dir_name, "PolygonMesh");
+
+	////// seq length 1 test
+	//std::string dir_name = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/cloud_mls/single_test";
+	//viz_mesh_seq(dir_name, "PolygonMesh");
 }
