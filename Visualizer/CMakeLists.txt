@@ -15,13 +15,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #   - PCL_LIBRARIES (file names of the built PCL libs)
 #   - PCL_LIBRARY_DIRS (dirs for PCL + 3rd party dep libs)
 #   - PCL_DEFINITIONS (needed preprocessor defs and compiler flags)
-find_package(PCL 1.9 REQUIRED COMPONENTS common io visualization)
+find_package(PCL 1.9 REQUIRED COMPONENTS console features common io visualization)  # PATHS "C:\\Program Files\\PCL" NO_DEFAULT_PATH
+
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 # add the executable
 add_executable(Visualizer "Visualizer.cpp")
+add_executable(pcl_visualizer_demo "pcl_visualizer_demo.cpp")
 
 # specify include dirs for given target
 target_link_libraries(Visualizer ${PCL_LIBRARIES})
+
+target_link_libraries (pcl_visualizer_demo ${PCL_LIBRARIES})
