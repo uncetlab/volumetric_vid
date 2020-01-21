@@ -1,3 +1,8 @@
+/*
+ * Shows example of Microsoft UVAtlas being used to create a UV mapping for a simple .obj cube
+ * Outputs to .obj
+ *
+ */
 #include <UVAtlas.h>
 #include <DirectXMesh.h>
 #include <memory>
@@ -9,7 +14,7 @@
 //#include <pcl/impl/point_types.hpp>
 #include <pcl/point_types.h>
 #include <pcl/conversions.h>
-#include <pcl/visualization/pcl_visualizer.h>
+//#include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/io/obj_io.h>
 
 
@@ -52,7 +57,7 @@ int main(int argc, char** argv)
 		0, 0.f,					// max # of charts, max stretch param
 		texture_width, texture_height,  // width and height the atlas will be used on
 		1.f,					// the minimum distance, in texels between two charts on the atlas
-		adj.get(),				//
+		adj.get(),				// ?? necessary, can't be nullptr
 		nullptr, nullptr,
 		nullptr,				// possible callback function
 		DirectX::UVATLAS_DEFAULT_CALLBACK_FREQUENCY,
@@ -64,7 +69,7 @@ int main(int argc, char** argv)
 	);
 	if (FAILED(hr)) {
 		printf("ERROR: UVAtlasCreate");
-		return 1;
+		return 2;
 	}
 
 	size_t nTotalVerts = vb.size();
@@ -91,7 +96,6 @@ int main(int argc, char** argv)
 	// Merge the UV data into the final VB
 	for (size_t j = 0; j < nTotalVerts; ++j) {
 		newVB[j].textureCoordinate = vb[j].uv;
-		//(*newVB)[j].textureCoordinate = vb[j].uv;
 	}
 		
 	auto newIB = reinterpret_cast<const uint16_t*>(&ib.front());
@@ -107,8 +111,8 @@ int main(int argc, char** argv)
 	// create PCL vertex buffer equivalent (contains duplicates currently)
 	pcl::PointCloud<pcl::PointNormal> xyz;
 	
-	for (int i = 0; i < nTotalVerts; i++) {  // copy newVB to texture_mesh.cloud
-		WaveFrontReader<uint16_t>::Vertex wf_v = newVB[i];
+	for (int i = 0; i < nVerts; i++) {  // copy newVB to texture_mesh.cloud
+		WaveFrontReader<uint16_t>::Vertex wf_v = mesh->vertices[i];
 		pcl::PointNormal pcl_v;
 
 		pcl_v.x = wf_v.position.x;
@@ -127,8 +131,8 @@ int main(int argc, char** argv)
 	std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f> >
 		mesh_tex;  // indicies correspond to elements in texture_mesh.cloud? // should be same shape as index buffer?
 
-	for (int i = 0; i < 36; i+=3) {  // build each face  // ib.size() / 2
-		if (i + 2 >= 36) {
+	for (int i = 0; i < ib.size() / 2; i+=3) {  // build each face  // ib.size() / 2
+		if (i + 2 >= ib.size() / 2) {
 			printf("ERROR");
 			return 1;
 		}
@@ -138,10 +142,15 @@ int main(int argc, char** argv)
 		int idx_2 = newIB[i + 1];
 		int idx_3 = newIB[i + 2];
 
+		// apply remap
+		int remapped_idx_1 = remap[idx_1];
+		int remapped_idx_2 = remap[idx_2];
+		int remapped_idx_3 = remap[idx_3];
+
 		pcl::Vertices v;  // indicies correspond to elements in texture_mesh.cloud?
-		v.vertices.push_back(idx_1);
-		v.vertices.push_back(idx_2);
-		v.vertices.push_back(idx_3);
+		v.vertices.push_back(remapped_idx_1);
+		v.vertices.push_back(remapped_idx_2);
+		v.vertices.push_back(remapped_idx_3);
 		mesh_poly.push_back(v);
 
 		// create corresponding uv coords
@@ -167,22 +176,24 @@ int main(int argc, char** argv)
 	// create PCL TexMaterial
 	pcl::TexMaterial mesh_material;
 
-	mesh_material.tex_file = "C:\\Users\\maxhu\\Desktop\\uvatlas_example\\uv_gradient.jpg";
+	//mesh_material.tex_file = "C:\\Users\\maxhu\\Desktop\\uvatlas_example\\uv_gradient.jpg";
+	mesh_material.tex_file = "uv_gradient.jpg";  // should be in same folder as output .obj
 	mesh_material.tex_name = "material_0";
 
 	texture_mesh.tex_materials.push_back(mesh_material);
 
-	pcl::io::saveOBJFile("C:\\Users\\maxhu\\Desktop\\uvatlas_example\\test_cube.obj", texture_mesh);
+	// MUST be declared with forward slashes to work correctly
+	pcl::io::saveOBJFile("C:/Users/maxhu/Desktop/uvatlas_example/test_cube_remapped.obj", texture_mesh);
 
-	// visualize
-	boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
-	viewer->setPosition(0, 0);
-	viewer->setSize(1173, 732);
-	viewer->addCoordinateSystem(3.0);
-	viewer->addTextureMesh(texture_mesh, "cube");
-	while (!viewer->wasStopped()) {
-		viewer->spinOnce(100);
-		//boost::this_thread::sleep(boost::posix_time::microseconds(100000));
-	}
+	//// visualize
+	//boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
+	//viewer->setPosition(0, 0);
+	//viewer->setSize(1173, 732);
+	//viewer->addCoordinateSystem(3.0);
+	//viewer->addTextureMesh(texture_mesh, "cube");
+	//while (!viewer->wasStopped()) {
+	//	viewer->spinOnce(100);
+	//	//boost::this_thread::sleep(boost::posix_time::microseconds(100000));
+	//}
 	
 }
