@@ -22,17 +22,28 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-# add the executable
+# add executables
 add_executable(UVmap "UVmap.cpp")
+add_executable(UVmapPCL "UVmap_pcl.cpp")
 
 # specify include dirs for given target
 target_include_directories(UVmap PUBLIC C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\inc)
 target_include_directories(UVmap PUBLIC C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\Utilities)
 target_include_directories(UVmap PUBLIC C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh)
 
-#target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\Bin\\Desktop_2017_Win10\\x64\\Debug\\UVAtlas.lib)
-#target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh\\Bin\\Desktop_2017\\x64\\Debug\\DirectXMesh.lib)
-target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\Bin\\Desktop_2017_Win10\\x64\\Release\\UVAtlas.lib)
-target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh\\Bin\\Desktop_2017\\x64\\Release\\DirectXMesh.lib)
+target_include_directories(UVmapPCL PUBLIC C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\inc)
+target_include_directories(UVmapPCL PUBLIC C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\Utilities)
+target_include_directories(UVmapPCL PUBLIC C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh)
+
+target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\Bin\\Desktop_2017_Win10\\x64\\Debug\\UVAtlas.lib)
+target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh\\Bin\\Desktop_2017\\x64\\Debug\\DirectXMesh.lib)
+#target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\Bin\\Desktop_2017_Win10\\x64\\Release\\UVAtlas.lib)
+#target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh\\Bin\\Desktop_2017\\x64\\Release\\DirectXMesh.lib)
 target_link_libraries(UVmap ${PCL_LIBRARIES})
+
+target_link_libraries(UVmapPCL C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\Bin\\Desktop_2017_Win10\\x64\\Debug\\UVAtlas.lib)
+target_link_libraries(UVmapPCL C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh\\Bin\\Desktop_2017\\x64\\Debug\\DirectXMesh.lib)
+#target_link_libraries(UVmapPCL C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\Bin\\Desktop_2017_Win10\\x64\\Release\\UVAtlas.lib)
+#target_link_libraries(UVmapPCL C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh\\Bin\\Desktop_2017\\x64\\Release\\DirectXMesh.lib)
+target_link_libraries(UVmapPCL ${PCL_LIBRARIES})
 
