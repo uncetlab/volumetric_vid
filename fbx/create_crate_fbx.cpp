@@ -1,4 +1,6 @@
 #include <fbxsdk.h>
+#include <vector>
+
 
 // declare globals
 FbxManager*   gSdkManager = NULL;
@@ -43,10 +45,13 @@ void CreateTexture(FbxScene* pScene)
 
 	// Resource file must be in the application's directory.
 	//FbxString lTexPath = gAppPath ? *gAppPath + "\\Crate.jpg" : "";
-	FbxString lTexPath = "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/samples/UI Examples/CubeCreator/Crate.jpg";
+	//FbxString lTexPath = "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/samples/UI Examples/CubeCreator/Crate.jpg";
+	FbxString lTexPath = "C:/Users/maxhu/Desktop/uvatlas_example/fbx_sdk/Crate.jpg"; // this texture gets embedded in the binary .fbx file
+	//FbxString lTexRelPath = "Crate.jpg";
 
 	// Set texture properties.
 	gTexture->SetFileName(lTexPath.Buffer());  // must pass in an absolute path
+	//bool setRelFileName = gTexture->SetRelativeFileName(lTexRelPath.Buffer());  // relative path takes preference over absolute?
 	gTexture->SetTextureUse(FbxTexture::eStandard);
 	gTexture->SetMappingType(FbxTexture::eUV);
 	gTexture->SetMaterialUse(FbxFileTexture::eModelMaterial);
@@ -199,23 +204,34 @@ bool Export(const char* pFilename, int pFileFormat) {
 
 void AddMaterials(FbxMesh* pMesh)
 {
+	//// Set material mapping.
+	//FbxGeometryElementMaterial* lMaterialElement = pMesh->CreateElementMaterial();
+	//lMaterialElement->SetMappingMode(FbxGeometryElement::eByPolygon);
+	//lMaterialElement->SetReferenceMode(FbxGeometryElement::eIndexToDirect);
+
+	////get the node of mesh, add material for it.
+	//FbxNode* lNode = pMesh->GetNode();
+	//if (lNode == NULL)
+	//	return;
+	//lNode->AddMaterial(gMaterial);
+
+	//// We are in eByPolygon, so there's only need for 6 index (a cube has 6 polygons).
+	//lMaterialElement->GetIndexArray().SetCount(6);
+
+	//// Set the Index 0 to 6 to the material in position 0 of the direct array.
+	//for (int i = 0; i < 6; ++i)
+	//	lMaterialElement->GetIndexArray().SetAt(i, 0);
+
+	//==> just use eAllSame, what a stupid example, ignore above --mh
 	// Set material mapping.
 	FbxGeometryElementMaterial* lMaterialElement = pMesh->CreateElementMaterial();
-	lMaterialElement->SetMappingMode(FbxGeometryElement::eByPolygon);
-	lMaterialElement->SetReferenceMode(FbxGeometryElement::eIndexToDirect);
+	lMaterialElement->SetMappingMode(FbxGeometryElement::eAllSame);
 
 	//get the node of mesh, add material for it.
 	FbxNode* lNode = pMesh->GetNode();
 	if (lNode == NULL)
 		return;
 	lNode->AddMaterial(gMaterial);
-
-	// We are in eByPolygon, so there's only need for 6 index (a cube has 6 polygons).
-	lMaterialElement->GetIndexArray().SetCount(6);
-
-	// Set the Index 0 to 6 to the material in position 0 of the direct array.
-	for (int i = 0; i < 6; ++i)
-		lMaterialElement->GetIndexArray().SetAt(i, 0);
 }
 
 // Create a cube mesh. 
@@ -240,6 +256,13 @@ FbxNode* CreateCubeMesh(FbxScene* pScene, char* pName)
 	FbxVector4 lNormalYNeg(0, -1, 0);
 	FbxVector4 lNormalZPos(0, 0, 1);
 	FbxVector4 lNormalZNeg(0, 0, -1);
+
+	//FbxVector4 lNormalXPos(0, 0, 0);
+	//FbxVector4 lNormalXNeg(0, 0, 0);
+	//FbxVector4 lNormalYPos(0, 0, 0);
+	//FbxVector4 lNormalYNeg(0, 0, 0);
+	//FbxVector4 lNormalZPos(0, 0, 0);
+	//FbxVector4 lNormalZNeg(0, 0, 0);
 
 	// Create control points of tris
 	lMesh->InitControlPoints(24);
@@ -313,22 +336,38 @@ FbxNode* CreateCubeMesh(FbxScene* pScene, char* pName)
 	// Create UV for Diffuse channel.
 	FbxGeometryElementUV* lUVDiffuseElement = lMesh->CreateElementUV("DiffuseUV");
 	FBX_ASSERT(lUVDiffuseElement != NULL);
-	lUVDiffuseElement->SetMappingMode(FbxGeometryElement::eByPolygonVertex);
-	lUVDiffuseElement->SetReferenceMode(FbxGeometryElement::eIndexToDirect);
+
+	//// use a reference to prevent access violations? 
+	//auto &dir_arr = lUVDiffuseElement->GetDirectArray();
+	//auto &index_arr = lUVDiffuseElement->GetIndexArray();
 
 	FbxVector2 lVectors0(0, 0);
 	FbxVector2 lVectors1(1, 0);
 	FbxVector2 lVectors2(1, 1);
 	FbxVector2 lVectors3(0, 1);
 
-	lUVDiffuseElement->GetDirectArray().Add(lVectors0);
-	lUVDiffuseElement->GetDirectArray().Add(lVectors1);
-	lUVDiffuseElement->GetDirectArray().Add(lVectors2);
-	lUVDiffuseElement->GetDirectArray().Add(lVectors3);
+	////==> using an index buffer
+	//lUVDiffuseElement->SetMappingMode(FbxGeometryElement::eByPolygonVertex);  // eByControlPoint has same effect
+	//lUVDiffuseElement->SetReferenceMode(FbxGeometryElement::eIndexToDirect);
 
-	//Now we have set the UVs as eIndexToDirect reference and in eByPolygonVertex  mapping mode
-	//we must update the size of the index array.
-	lUVDiffuseElement->GetIndexArray().SetCount(24);
+	//lUVDiffuseElement->GetDirectArray().Add(lVectors0);
+	//lUVDiffuseElement->GetDirectArray().Add(lVectors1);
+	//lUVDiffuseElement->GetDirectArray().Add(lVectors2);
+	//lUVDiffuseElement->GetDirectArray().Add(lVectors3);
+
+	////Now we have set the UVs as eIndexToDirect reference and in eByPolygonVertex  mapping mode
+	////we must update the size of the index array.
+	//lUVDiffuseElement->GetIndexArray().SetCount(24);
+
+	//==> no index buffer, only vertex buffer
+	lUVDiffuseElement->SetMappingMode(FbxGeometryElement::eByControlPoint);
+	lUVDiffuseElement->SetReferenceMode(FbxGeometryElement::eDirect);
+
+	std::vector<FbxVector2> uv_coords;
+	uv_coords.push_back(lVectors0);
+	uv_coords.push_back(lVectors1);
+	uv_coords.push_back(lVectors2);
+	uv_coords.push_back(lVectors3);
 
 	// Create polygons. Assign texture and texture UV indices.
 	for (i = 0; i < 6; i++)  // 6 sides of cube
@@ -341,12 +380,22 @@ FbxNode* CreateCubeMesh(FbxScene* pScene, char* pName)
 			// Control point index
 			lMesh->AddPolygon(lPolygonVertices[i * 4 + j]);
 
-			// update the index array of the UVs that map the texture to the face
-			lUVDiffuseElement->GetIndexArray().SetAt(i * 4 + j, j);
+			//==> using an index buffer
+			//// update the index array of the UVs that map the texture to the face
+			//lUVDiffuseElement->GetIndexArray().SetAt(i * 4 + j, j);
+			//index_arr.SetAt(i * 4 + j, j); // prevents access violation?
+
+			//==> using only a vertex buffer
+			lUVDiffuseElement->GetDirectArray().Add(uv_coords[j]);
+			//dir_arr.Add(uv_coords[j]); // prevents access violation?
 		}
 
 		lMesh->EndPolygon();
 	}
+
+	//// debug
+	//FbxLayerElementArrayTemplate<FbxVector2> direct_arr = lUVDiffuseElement->GetDirectArray();
+	//int dir_count = direct_arr.GetCount();
 
 	// create a FbxNode
 	FbxNode* lNode = FbxNode::Create(pScene, pName);
@@ -356,6 +405,7 @@ FbxNode* CreateCubeMesh(FbxScene* pScene, char* pName)
 
 	// set the shading mode to view texture
 	lNode->SetShadingMode(FbxNode::eTextureShading);
+	//lNode->SetShadingMode(FbxNode::eFlatShading);
 
 	// rescale the cube
 	lNode->LclScaling.Set(FbxVector4(0.3, 0.3, 0.3));
