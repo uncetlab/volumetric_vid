@@ -22,28 +22,49 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
+#set(BLEND2D_LIBRARY "C:/Users/maxhu/repos/blend2d/blend2d/build64/Debug/blend2d.lib") # must also copy .dll into CMakeBuilds!!
+set(BLEND2D_LIBRARY "C:/Users/maxhu/repos/blend2d/blend2d/build64/Release/blend2d.lib") # must also copy .dll into CMakeBuilds!!
+set(BLEND2D_INCLUDE_PATH "C:/Users/maxhu/repos/blend2d/blend2d/src")
+include_directories(${BLEND2D_INCLUDE_PATH})
+
 # add executables
-add_executable(UVmap "UVmap.cpp")
-add_executable(UVmapPCL "UVmap_pcl.cpp")
+add_executable(UVmap "UVmap.cpp" "../Texturing/texturing.cpp")
+add_executable(UVmapPCL "UVmap_pcl.cpp" "../Texturing/texturing.cpp")
+
 
 # specify include dirs for given target
 target_include_directories(UVmap PUBLIC C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\inc)
 target_include_directories(UVmap PUBLIC C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\Utilities)
 target_include_directories(UVmap PUBLIC C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh)
+target_include_directories(UVmap PUBLIC "../Texturing")
+
 
 target_include_directories(UVmapPCL PUBLIC C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\inc)
 target_include_directories(UVmapPCL PUBLIC C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\Utilities)
 target_include_directories(UVmapPCL PUBLIC C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh)
+target_include_directories(UVmapPCL PUBLIC "../Texturing")
 
-target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\Bin\\Desktop_2017_Win10\\x64\\Debug\\UVAtlas.lib)
-target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh\\Bin\\Desktop_2017\\x64\\Debug\\DirectXMesh.lib)
-#target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\Bin\\Desktop_2017_Win10\\x64\\Release\\UVAtlas.lib)
-#target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh\\Bin\\Desktop_2017\\x64\\Release\\DirectXMesh.lib)
+
+#target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\Bin\\Desktop_2017_Win10\\x64\\Debug\\UVAtlas.lib)
+#target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh\\Bin\\Desktop_2017\\x64\\Debug\\DirectXMesh.lib)
+target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\Bin\\Desktop_2017_Win10\\x64\\Release\\UVAtlas.lib)
+target_link_libraries(UVmap C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh\\Bin\\Desktop_2017\\x64\\Release\\DirectXMesh.lib)
 target_link_libraries(UVmap ${PCL_LIBRARIES})
+target_link_libraries(UVmap ${BLEND2D_LIBRARY})
 
-target_link_libraries(UVmapPCL C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\Bin\\Desktop_2017_Win10\\x64\\Debug\\UVAtlas.lib)
-target_link_libraries(UVmapPCL C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh\\Bin\\Desktop_2017\\x64\\Debug\\DirectXMesh.lib)
-#target_link_libraries(UVmapPCL C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\Bin\\Desktop_2017_Win10\\x64\\Release\\UVAtlas.lib)
-#target_link_libraries(UVmapPCL C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh\\Bin\\Desktop_2017\\x64\\Release\\DirectXMesh.lib)
+
+#target_link_libraries(UVmapPCL C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\Bin\\Desktop_2017_Win10\\x64\\Debug\\UVAtlas.lib)
+#target_link_libraries(UVmapPCL C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh\\Bin\\Desktop_2017\\x64\\Debug\\DirectXMesh.lib)
+target_link_libraries(UVmapPCL C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\UVAtlas\\UVAtlas\\Bin\\Desktop_2017_Win10\\x64\\Release\\UVAtlas.lib)
+target_link_libraries(UVmapPCL C:\\Users\\maxhu\\repos\\Microsoft_UVAtlas\\DirectXMesh\\DirectXMesh\\Bin\\Desktop_2017\\x64\\Release\\DirectXMesh.lib)
 target_link_libraries(UVmapPCL ${PCL_LIBRARIES})
+target_link_libraries(UVmapPCL ${BLEND2D_LIBRARY})
+
+
+## add the executable
+#add_executable(MLS "MLS.cpp" "../SPSR/SPSR.cpp")
+
+## specify include dirs for given target
+#target_link_libraries(MLS ${PCL_LIBRARIES})
+#target_include_directories(MLS PUBLIC "../SPSR")
 

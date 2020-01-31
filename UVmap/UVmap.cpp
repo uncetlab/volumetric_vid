@@ -16,6 +16,7 @@
 #include <pcl/conversions.h>
 //#include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/io/obj_io.h>
+#include "texturing.h"
 
 
 int main(int argc, char** argv)
@@ -176,14 +177,19 @@ int main(int argc, char** argv)
 	// create PCL TexMaterial
 	pcl::TexMaterial mesh_material;
 
-	//mesh_material.tex_file = "C:\\Users\\maxhu\\Desktop\\uvatlas_example\\uv_gradient.jpg";
-	mesh_material.tex_file = "uv_gradient.jpg";  // should be in same folder as output .obj
+	//mesh_material.tex_file = "uv_gradient.jpg";  // should be in same folder as output .obj
+	//mesh_material.tex_name = "material_0";
+
+	std::string tex_file = "C:/Users/maxhu/Desktop/uvatlas_example/test_cube_tex.bmp";
+	generateGradientTexture(tex_file, texture_mesh.tex_coordinates[0]);
+
+	mesh_material.tex_file = tex_file;  // should be in same folder as output .obj
 	mesh_material.tex_name = "material_0";
 
 	texture_mesh.tex_materials.push_back(mesh_material);
 
 	// MUST be declared with forward slashes to work correctly
-	pcl::io::saveOBJFile("C:/Users/maxhu/Desktop/uvatlas_example/test_cube_remapped.obj", texture_mesh);
+	pcl::io::saveOBJFile("C:/Users/maxhu/Desktop/uvatlas_example/test_cube_tex.obj", texture_mesh);
 
 	//// visualize
 	//boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
