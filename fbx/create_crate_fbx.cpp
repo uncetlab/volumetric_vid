@@ -145,10 +145,12 @@ bool SaveScene(FbxManager* pSdkManager, FbxDocument* pScene, const char* pFilena
 	// Create an exporter.
 	FbxExporter* lExporter = FbxExporter::Create(pSdkManager, "");
 
+	// if file format is left unspecified... determine what it should be -- mh
 	if (pFileFormat < 0 || pFileFormat >= pSdkManager->GetIOPluginRegistry()->GetWriterFormatCount())
 	{
 		// Write in fall back format if pEmbedMedia is true
 		pFileFormat = pSdkManager->GetIOPluginRegistry()->GetNativeWriterFormat();
+
 
 		if (!pEmbedMedia)
 		{
@@ -251,12 +253,13 @@ FbxNode* CreateCubeMesh(FbxScene* pScene, char* pName)
 	FbxVector4 lControlPoint7(-50, 100, -50);
 
 	FbxVector4 lNormalXPos(1, 0, 0);
-	FbxVector4 lNormalXNeg(-1, 0, 0);
-	FbxVector4 lNormalYPos(0, 1, 0);
-	FbxVector4 lNormalYNeg(0, -1, 0);
-	FbxVector4 lNormalZPos(0, 0, 1);
-	FbxVector4 lNormalZNeg(0, 0, -1);
+	//FbxVector4 lNormalXNeg(-1, 0, 0);
+	//FbxVector4 lNormalYPos(0, 1, 0);
+	//FbxVector4 lNormalYNeg(0, -1, 0);
+	//FbxVector4 lNormalZPos(0, 0, 1);
+	//FbxVector4 lNormalZNeg(0, 0, -1);
 
+	// mesh appears completely black in FBX Review when using 0 normals
 	//FbxVector4 lNormalXPos(0, 0, 0);
 	//FbxVector4 lNormalXNeg(0, 0, 0);
 	//FbxVector4 lNormalYPos(0, 0, 0);
@@ -297,35 +300,39 @@ FbxNode* CreateCubeMesh(FbxScene* pScene, char* pName)
 	// so we set the mapping mode to eByControlPoint.
 	FbxGeometryElementNormal* lGeometryElementNormal = lMesh->CreateElementNormal();
 
-	lGeometryElementNormal->SetMappingMode(FbxGeometryElement::eByControlPoint);
+	//lGeometryElementNormal->SetMappingMode(FbxGeometryElement::eByControlPoint);
+	lGeometryElementNormal->SetMappingMode(FbxGeometryElement::eAllSame); // mh
+
 
 	// Set the normal values for every control point.
 	lGeometryElementNormal->SetReferenceMode(FbxGeometryElement::eDirect);
 
-	lGeometryElementNormal->GetDirectArray().Add(lNormalZPos);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalZPos);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalZPos);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalZPos);
 	lGeometryElementNormal->GetDirectArray().Add(lNormalXPos);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalXPos);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalXPos);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalXPos);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalZNeg);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalZNeg);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalZNeg);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalZNeg);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalXNeg);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalXNeg);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalXNeg);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalXNeg);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalYPos);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalYPos);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalYPos);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalYPos);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalYNeg);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalYNeg);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalYNeg);
-	lGeometryElementNormal->GetDirectArray().Add(lNormalYNeg);
+
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalZPos);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalZPos);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalZPos);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalZPos);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalXPos);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalXPos);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalXPos);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalXPos);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalZNeg);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalZNeg);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalZNeg);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalZNeg);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalXNeg);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalXNeg);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalXNeg);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalXNeg);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalYPos);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalYPos);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalYPos);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalYPos);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalYNeg);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalYNeg);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalYNeg);
+	//lGeometryElementNormal->GetDirectArray().Add(lNormalYNeg);
 
 
 	// Array of polygon vertices.
@@ -434,6 +441,21 @@ void most_basic_cube() {
 
 }
 
+void print_file_formats() {
+	int num_formats = gSdkManager->GetIOPluginRegistry()->GetWriterFormatCount();
+	int native = gSdkManager->GetIOPluginRegistry()->GetNativeWriterFormat();
+	printf("native format index: %i\n", native);
+
+	for (int i = 0; i < num_formats; i++) {
+		std::string descrip = gSdkManager->GetIOPluginRegistry()->GetWriterFormatDescription(i);
+		std::string extension = gSdkManager->GetIOPluginRegistry()->GetWriterFormatExtension(i);
+		printf("%i (.%s): %s\n", i, extension.c_str(), descrip.c_str());
+	}
+}
+
 int main(int argc, char** argv) {
 	most_basic_cube();
+
+	//CreateScene();
+	//print_file_formats();
 }
