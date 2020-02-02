@@ -2,13 +2,6 @@
 #include <pcl/io/obj_io.h>
 #include <pcl/conversions.h>
 #include <fbxsdk.h>
-//#include <vector>
-
-// declare globals
-//FbxManager*   gSdkManager = NULL;
-//FbxScene*        gScene = NULL;
-//FbxFileTexture*  gTexture = NULL;
-//FbxSurfacePhong* gMaterial = NULL;
 
 #ifdef IOS_REF
   #undef  IOS_REF
@@ -39,47 +32,6 @@ bool InitializeSdkObjects(FbxManager*& pManager, FbxScene*& pScene)
 	}
 	return true;
 }
-
-//// Create a global texture for cube.
-//void CreateTexture(FbxScene* pScene, std::string tex_file)
-//{
-//	gTexture = FbxFileTexture::Create(pScene, "Diffuse Texture");
-//
-//	FbxString lTexPath = tex_file.c_str();  // this texture gets embedded in the binary .fbx file
-//
-//	// Set texture properties.
-//	gTexture->SetFileName(lTexPath.Buffer());  // must pass in an absolute path
-//	gTexture->SetTextureUse(FbxTexture::eStandard);
-//	gTexture->SetMappingType(FbxTexture::eUV);
-//	gTexture->SetMaterialUse(FbxFileTexture::eModelMaterial);
-//	gTexture->SetSwapUV(false);
-//	gTexture->SetTranslation(0.0, 0.0);
-//	gTexture->SetScale(1.0, 1.0);
-//	gTexture->SetRotation(0.0, 0.0);
-//}
-//
-//// Create global material for cube.
-//void CreateMaterial(FbxScene* pScene)
-//{
-//	FbxString lMaterialName = "material";
-//	FbxString lShadingName = "Phong";
-//	FbxDouble3 lBlack(0.0, 0.0, 0.0);
-//	FbxDouble3 lRed(1.0, 0.0, 0.0);
-//	FbxDouble3 lDiffuseColor(0.75, 0.75, 0.0);
-//	gMaterial = FbxSurfacePhong::Create(pScene, lMaterialName.Buffer());
-//
-//	// Generate primary and secondary colors.
-//	gMaterial->Emissive.Set(lBlack);
-//	gMaterial->Ambient.Set(lRed);
-//	gMaterial->Diffuse.Set(lDiffuseColor);
-//	gMaterial->TransparencyFactor.Set(40.5);
-//	gMaterial->ShadingModel.Set(lShadingName);
-//	gMaterial->Shininess.Set(0.5);
-//
-//	// the texture need to be connected to the material on the corresponding property
-//	if (gTexture)
-//		gMaterial->Diffuse.ConnectSrcObject(gTexture);
-//}
 
 // local version of create texture
 void CreateTexture(FbxFileTexture*& pTexture, FbxScene* pScene, std::string tex_file)
@@ -121,24 +73,6 @@ void CreateMaterial(FbxSurfacePhong*& pMaterial, FbxFileTexture* pTexture, FbxSc
 	if (pTexture)
 		pMaterial->Diffuse.ConnectSrcObject(pTexture);
 }
-
-//// to create a basic scene
-//bool CreateScene()
-//{
-//	// Initialize the FbxManager and the FbxScene
-//	if (InitializeSdkObjects(gSdkManager, gScene) == false)
-//	{
-//		return false;
-//	}
-//
-//	// create a single texture shared by all cubes
-//	CreateTexture(gScene);
-//
-//	// create a material shared by all faces of all cubes
-//	CreateMaterial(gScene);
-//
-//	return true;
-//}
 
 // to save a scene to a FBX file
 bool SaveScene(FbxManager* pSdkManager, FbxDocument* pScene, const char* pFilename, int pFileFormat, bool pEmbedMedia)
@@ -196,11 +130,7 @@ bool SaveScene(FbxManager* pSdkManager, FbxDocument* pScene, const char* pFilena
 	IOS_REF.SetBoolProp(EXP_FBX_GLOBAL_SETTINGS, true);
 
 	// Export the scene.
-
-	FbxStatus status_before = lExporter->GetStatus();
 	lStatus = lExporter->Export(pScene);	// dont break on exception 0xc0000005
-	//lStatus = lExporter->Export(pScene, true);	// dont break on exception 0xc0000005 // access violation happens even on new thread
-	FbxStatus status_after = lExporter->GetStatus();
 
 	// Destroy the exporter.
 	lExporter->Destroy();
@@ -208,30 +138,12 @@ bool SaveScene(FbxManager* pSdkManager, FbxDocument* pScene, const char* pFilena
 	return lStatus;
 }
 
-//// to save a scene to a FBX file
-//bool Export(const char* pFilename, int pFileFormat) {
-//	return SaveScene(gSdkManager, gScene, pFilename, pFileFormat, true); // true -> embed texture file
-//}
-
-// to save a scene to a FBX file
+// to save a scene to a FBX file. local version
 bool Export(const char* pFilename, int pFileFormat, FbxManager* pManager, FbxScene* pScene) {
 	return SaveScene(pManager, pScene, pFilename, pFileFormat, true); // true -> embed texture file
 }
 
-//void AddMaterials(FbxMesh* pMesh)
-//{
-//	// Set material mapping.
-//	FbxGeometryElementMaterial* lMaterialElement = pMesh->CreateElementMaterial();
-//	lMaterialElement->SetMappingMode(FbxGeometryElement::eAllSame);
-//
-//	//get the node of mesh, add material for it.
-//	FbxNode* lNode = pMesh->GetNode();
-//	if (lNode == NULL)
-//		return;
-//	lNode->AddMaterial(gMaterial);
-//}
-
-// local version of AddMaterials
+// add materials to a mesh. local version
 void AddMaterials(FbxMesh* pMesh, FbxSurfacePhong* pMaterial)
 {
 	// Set material mapping.
@@ -245,18 +157,17 @@ void AddMaterials(FbxMesh* pMesh, FbxSurfacePhong* pMaterial)
 	lNode->AddMaterial(pMaterial);
 }
 
+// convert a pcl::TextureMesh to an FbxMesh, add to pScene
 FbxNode* createMesh(pcl::TextureMesh &mesh, FbxScene* pScene, char* pName, FbxSurfacePhong* pMaterial) {
-	int i, j;
+	
 	FbxMesh* lMesh = FbxMesh::Create(pScene, pName);
 
-
 	//==> specify vertex positions and normals
+
 	// convert PCLPointCloud2 to PointCloud
 	pcl::PointCloud<pcl::PointNormal>::Ptr cloud(new pcl::PointCloud<pcl::PointNormal>);
 	pcl::fromPCLPointCloud2(mesh.cloud, *cloud);
-	//FbxVector4 lNormalXPos(1, 0, 0);
 
-	//FbxVector4 vertices[mesh.cloud.width()];
 	std::vector<FbxVector4> vertices;
 	std::vector<FbxVector4> normals;
 	for (int i = 0; i < cloud->size(); i++) {
@@ -267,8 +178,7 @@ FbxNode* createMesh(pcl::TextureMesh &mesh, FbxScene* pScene, char* pName, FbxSu
 		normals.push_back(normal);
 	}
 
-	//==> Create control points of tris and set normals (a vertex has as many control points as the number of tris it is a part of)
-	// currently our obj files have all normals as 0
+	//==> init control points (a vertex has as many control points as the number of tris it is a part of)
 	std::vector<pcl::Vertices> &submesh = mesh.tex_polygons[0];
 	int num_tris = submesh.size();
 	int num_control_pts = num_tris * 3;
@@ -276,89 +186,60 @@ FbxNode* createMesh(pcl::TextureMesh &mesh, FbxScene* pScene, char* pName, FbxSu
 	lMesh->InitControlPoints(num_control_pts);
 	FbxVector4* lControlPoints = lMesh->GetControlPoints();
 
-	// normal element
+	//==> set normal mapping / reference modes (TODO: generate real normals per face or vertex to use)
 	FbxGeometryElementNormal* lGeometryElementNormal = lMesh->CreateElementNormal();
 	//lGeometryElementNormal->SetMappingMode(FbxGeometryElement::eByControlPoint);
-	lGeometryElementNormal->SetMappingMode(FbxGeometryElement::eAllSame); // quick hack
+	lGeometryElementNormal->SetMappingMode(FbxGeometryElement::eAllSame); // quick hack, use a fake normal for all control points
 	lGeometryElementNormal->SetReferenceMode(FbxGeometryElement::eDirect);
 
-	FbxVector4 lNormalXPos(1, 0, 0);
+	FbxVector4 lNormalXPos(1, 0, 0);  // fake normal
 	lGeometryElementNormal->GetDirectArray().Add(lNormalXPos);
 
-	// UV diffuse element
+	//==> set UV mapping / reference modes
 	FbxGeometryElementUV* lUVDiffuseElement = lMesh->CreateElementUV("DiffuseUV");
 	FBX_ASSERT(lUVDiffuseElement != NULL);
 
-	// use a reference to prevent access violations? 
-	auto &dir_arr = lUVDiffuseElement->GetDirectArray();
-	auto &index_arr = lUVDiffuseElement->GetIndexArray();
+	// use a reference to prevent access violation errors?
+	auto &dir_arr = lUVDiffuseElement->GetDirectArray();  // try using this instead of lUVDiffuseElement->GetDirectArray() in loop if error occurs
+	//auto &index_arr = lUVDiffuseElement->GetIndexArray();
 
-	FbxVector2 lVectors0(0, 0);
-	FbxVector2 lVectors1(1, 0);
-	FbxVector2 lVectors2(1, 1);
-
-	////==> using an index buffer
+	////==> using an index buffer + vertex buffer (TODO: if UVAtlas output a more reasonable UV map, where faces shared vertices, we should use an index buffer)
 	//lUVDiffuseElement->SetMappingMode(FbxGeometryElement::eByControlPoint); // eByPolygonVertex // eByControlPoint has same effect
 	//lUVDiffuseElement->SetReferenceMode(FbxGeometryElement::eIndexToDirect);
 
-	////lUVDiffuseElement->GetDirectArray().Add(lVectors0);
-	////lUVDiffuseElement->GetDirectArray().Add(lVectors1);
-	////lUVDiffuseElement->GetDirectArray().Add(lVectors2);
-
-	//dir_arr.Add(lVectors0);
-	//dir_arr.Add(lVectors1);
-	//dir_arr.Add(lVectors2);
-
-	////Now we have set the UVs as eIndexToDirect reference and in eByPolygonVertex  mapping mode
+	////Now we have set the UVs as eIndexToDirect reference and in eByPolygonVertex mapping mode
 	////we must update the size of the index array.
 	//lUVDiffuseElement->GetIndexArray().SetCount(num_tris * 3);
 
-	//==> no index buffer, only vertex buffer (access violation error)
+	//==> using a vertex buffer (no index buffer)
 	lUVDiffuseElement->SetMappingMode(FbxGeometryElement::eByControlPoint); // eByPolygonVertex would have same effect here
-	lUVDiffuseElement->SetReferenceMode(FbxGeometryElement::eDirect); // eIndexToDirect
-
-	//std::vector<FbxVector2> uv_coords;
-	//uv_coords.push_back(lVectors0);
-	//uv_coords.push_back(lVectors1);
-	//uv_coords.push_back(lVectors2);
+	lUVDiffuseElement->SetReferenceMode(FbxGeometryElement::eDirect);
 
 	for (int tri_idx = 0; tri_idx < submesh.size(); tri_idx++) {
 		lMesh->BeginPolygon(-1, -1, -1, false);
 
 		for (int i = 0; i < 3; i++) {
-			// set control points and their normals
+			//==> set control points and their normals
 			lControlPoints[tri_idx*3 + i] = vertices[submesh[tri_idx].vertices[i]];
-			//lGeometryElementNormal->GetDirectArray().Add(normals[submesh[tri_idx].vertices[i]]);  // currently all the imported normals are 0, so don't use this
+			//lGeometryElementNormal->GetDirectArray().Add(normals[submesh[tri_idx].vertices[i]]);  // (TODO: for when we use mapping mode eByControlPoint)
 
+			//==> add a control point to the current polygon
 			lMesh->AddPolygon(tri_idx * 3 + i);
 
-			//==> using an index buffer
+			//==> UV mapping: using an index buffer
 			// update the index array of the UVs that map the texture to the face
 			//lUVDiffuseElement->GetIndexArray().SetAt(tri_idx * 3 + i, i);
 			//lUVDiffuseElement->GetIndexArray().Add(i);
 			//index_arr.Add(i);
 
-			//==> using only vertex buffer
+			//==> UV mapping: using only vertex buffer
 			Eigen::Vector2f &eigen_vec = mesh.tex_coordinates[0][tri_idx * 3 + i];
 			FbxVector2 uv(eigen_vec(0), eigen_vec(1));
 			lUVDiffuseElement->GetDirectArray().Add(uv);
-
-			//lUVDiffuseElement->GetDirectArray().Add(uv_coords[i]);
-			//dir_arr.Add(uv_coords[i]);
 		}
 
 		lMesh->EndPolygon();
-
 	}
-
-	////// debug
-	//FbxLayerElementArrayTemplate<FbxVector2> &direct_arr_first = lUVDiffuseElement->GetDirectArray();
-	//FbxLayerElementArrayTemplate<int> &index_arr_first = lUVDiffuseElement->GetIndexArray();
-
-	//FbxLayerElementArrayTemplate<FbxVector2> &direct_arr_second = lUVDiffuseElement->GetDirectArray();
-	//FbxLayerElementArrayTemplate<int> &index_arr_second = lUVDiffuseElement->GetIndexArray();
-	//int dir_count = dir_arr.GetCount();
-	//int index_count = index_arr.GetCount();
 
 	// create a FbxNode
 	FbxNode* lNode = FbxNode::Create(pScene, pName);
@@ -374,68 +255,50 @@ FbxNode* createMesh(pcl::TextureMesh &mesh, FbxScene* pScene, char* pName, FbxSu
 	//lNode->LclScaling.Set(FbxVector4(0.3, 0.3, 0.3));
 
 	// add material
-	//AddMaterials(lMesh);
 	AddMaterials(lMesh, pMaterial);
 
 	// return the FbxNode
 	return lNode;
 }
 
-/* exports pcl::TextureMesh to fbx
+/* converts pcl::TextureMesh to fbx, exports to .fbx file
  * assumes the TextureMesh has 1 of each tex_polygons, tex_coordinates, tex_materials
  *
  */
 bool fbxFromTextureMesh(pcl::TextureMesh &mesh, const std::string mesh_name, std::string output_full_path) {
 
-	//==> create the scene (creates FbxManager / FbxScene)
-	//CreateScene();
-
-	// Initialize the FbxManager and the FbxScene
-	//if (InitializeSdkObjects(gSdkManager, gScene) == false)
-	//{
-	//	return false;
-	//}
-
-	// try having locals instead of globals
+	//==> declare local fbx variables
 	FbxManager* lManager = NULL;
 	FbxScene* lScene = NULL;
 	FbxFileTexture* lTexture = NULL;
 	FbxSurfacePhong* lMaterial = NULL;
+
+	//==> initialize fbx variables
 	if (InitializeSdkObjects(lManager, lScene) == false)
 	{
 		return false;
 	}
 
-	// create a single texture shared by all cubes
-	//CreateTexture(gScene, mesh.tex_materials[0].tex_file);
+	// create a single texture shared by all meshes
 	CreateTexture(lTexture, lScene, mesh.tex_materials[0].tex_file);
-	//CreateTexture(lTexture, lScene, "C:/Users/maxhu/Desktop/uvatlas_example/fbx_sdk/Crate.jpg");
-	//CreateTexture(lTexture, lScene, "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient/ptcloud_hd00000381_normals_cleaned.bmp");
-	//CreateTexture(gScene, "C:/Users/maxhu/Desktop/uvatlas_example/fbx_sdk/Crate.jpg");
 
-	// create a material shared by all faces of all cubes
-	//CreateMaterial(gScene);
+	// create a material shared by all faces of all cubes, containing the provided texture
 	CreateMaterial(lMaterial, lTexture, lScene);
 
 	//==> create a FbxNode for our mesh
-	//FbxNode* lMesh = createMesh(mesh, gScene, "mesh_name");
 	FbxNode* lMesh = createMesh(mesh, lScene, "mesh_name", lMaterial);
-	//FbxNode* lMesh = createMesh(mesh, gScene, mesh_name.c_str());
 
-	//==> add cube to scene
-	//gScene->GetRootNode()->AddChild(lMesh);
+	//==> add mesh to scene
 	lScene->GetRootNode()->AddChild(lMesh);
 
 	//==> export to .fbx
-	//Export("C:/Users/maxhu/Desktop/uvatlas_example/fbx_sdk/test_panoptic.fbx", -1);
-	//Export("C:/Users/maxhu/Desktop/uvatlas_example/fbx_sdk/test_ptcloud_hd00000380_normals_cleaned.fbx", -1);
-	//Export(output_full_path.c_str(), -1);
 	Export(output_full_path.c_str(), -1, lManager, lScene);
 
 	return true;
 }
 
 /* loads all TextureMeshes (saved as .obj files) from a dir (assumes every file is a .obj file)
+ * works with .obj files which only have 1 material
  *
  */
 void load_meshes_from_dir(const std::string dir_name, std::vector<pcl::TextureMeshPtr> &meshes, std::vector<std::string> &mesh_filenames) {
@@ -447,8 +310,7 @@ void load_meshes_from_dir(const std::string dir_name, std::vector<pcl::TextureMe
 		// Get input / output paths
 		boost::filesystem::directory_entry entry = *it++;
 		boost::filesystem::path path = entry.path();
-		//std::string filename = path.filename().string();
-		std::string filename = path.stem().string();  // .filename() includes extension
+		std::string filename = path.stem().string();  // .filename() includes extension, use .stem() instead
 
 		if (boost::filesystem::extension(path) != ".obj") {
 			printf("skipping file with extension: %s\n", boost::filesystem::extension(path).c_str());
@@ -463,32 +325,22 @@ void load_meshes_from_dir(const std::string dir_name, std::vector<pcl::TextureMe
 													// all texture coordinates get loaded into the first submesh 
 													// (any other submeshes get no texture coordinates)
 
-		//edit texture files to be full paths
+		//edit texture files to be full paths (necessary when creating textures)
 		mesh->tex_materials[0].tex_file = dir_name + "/" + mesh->tex_materials[0].tex_file;
 
-		//// quick hack  -- this just uses material_0 for every submesh, since visualization only supports 1 material
-		//// (this causes each submesh other than the first to look wrong)
-		//pcl::io::loadPolygonFileOBJ(mesh_path, *mesh);
-		//pcl::TextureMesh mesh2;
-		//pcl::io::loadOBJFile(mesh_path, mesh2);
-		//mesh->tex_materials.clear();
-		//mesh->tex_materials.push_back(mesh2.tex_materials[0]);
-
 		meshes.push_back(mesh);
-		//mesh_filenames.push_back(mesh_path);
 		mesh_filenames.push_back(filename);
 	}
 }
 
 int main(int argc, char** argv) {
 
-	//// load in TextureMesh
+	////==> single example
 	//pcl::TextureMesh tmesh;
-	////pcl::io::loadOBJFile("C:/Users/maxhu/Desktop/uvatlas_example/test_panoptic.obj", tmesh);
 	//pcl::io::loadOBJFile("C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/ptcloud_hd00000380_normals_cleaned.obj", tmesh);
-
 	//fbxFromTextureMesh(tmesh);
 
+	//==> convert a dir of .obj files into .fbx
 	std::vector<pcl::TextureMeshPtr> meshes;
 	std::vector<std::string> mesh_filenames;
 	std::string input_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient";

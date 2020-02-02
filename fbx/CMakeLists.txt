@@ -48,5 +48,5 @@ target_link_libraries(CreateCrateFBX ${FBXSDK_LIBRARIES_DEBUG})
 target_link_libraries(CreateCrateFBXOld ${FBXSDK_LIBRARIES_DEBUG})
 
 target_link_libraries(CreateVolcapFBX ${PCL_LIBRARIES})
-target_link_libraries(CreateVolcapFBX ${FBXSDK_LIBRARIES_DEBUG})
-#target_link_libraries(CreateVolcapFBX ${FBXSDK_LIBRARIES_RELEASE})
+#target_link_libraries(CreateVolcapFBX ${FBXSDK_LIBRARIES_DEBUG})
+target_link_libraries(CreateVolcapFBX ${FBXSDK_LIBRARIES_RELEASE})
