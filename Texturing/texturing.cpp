@@ -33,7 +33,7 @@ void generateGradientTexture(const std::string &file_name, std::vector<Eigen::Ve
 		Eigen::Vector2f pt2 = tex_coords[i + 2];
 
 		// TODO: scale this better, does Blend2d have a pt struct?
-		BLTriangle tri(pt0(0) * 480, pt0(1) * 480, pt1(0) * 480, pt1(1) * 480, pt2(0) * 480, pt2(1) * 480);
+		BLTriangle tri(pt0(0) * 480, (1.0 - pt0(1)) * 480, pt1(0) * 480, (1.0 - pt1(1)) * 480, pt2(0) * 480, (1.0 - pt2(1)) * 480);
 
 		//ctx.setCompOp(BL_COMP_OP_SRC_OVER);
 		ctx.setFillStyle(linear_red);

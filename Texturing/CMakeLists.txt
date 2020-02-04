@@ -54,12 +54,13 @@ include_directories(${BLEND2D_INCLUDE_PATH})
 
 
 # add the executable
-add_executable(Texturing "texture_mapping.cpp")
+add_executable(Texturing "texture_mapping.cpp" "texturing.cpp")
 add_executable(CustomTexturing "custom_texture_mapping.cpp" "texturing.cpp")
 add_executable(Blend2D_test "blend2d_test.cpp")
 
 # specify include dirs for given target
 target_link_libraries(Texturing ${PCL_LIBRARIES})
+target_link_libraries(Texturing ${BLEND2D_LIBRARY})
 target_link_libraries(CustomTexturing ${PCL_LIBRARIES})
 target_link_libraries(CustomTexturing ${BLEND2D_LIBRARY})
 target_link_libraries(Blend2D_test ${BLEND2D_LIBRARY})
