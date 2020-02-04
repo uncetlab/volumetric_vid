@@ -37,7 +37,6 @@ include_directories(${FBXSDK_INCLUDE_PATH})
 # add the executables
 add_executable(FBXFirstProgram "fbx_first_program.cpp")
 add_executable(CreateCrateFBX "create_crate_fbx.cpp")
-add_executable(CreateCrateFBXOld "create_crate_fbx_old.cpp")
 add_executable(CreateVolcapFBX "create_volcap_fbx.cpp")
 
 # specify include dirs for given target
@@ -45,7 +44,6 @@ target_link_libraries(FBXFirstProgram ${FBXSDK_LIBRARIES_DEBUG})
 
 #target_link_libraries(CreateCrateFBX ${FBXSDK_LIBRARIES_RELEASE})
 target_link_libraries(CreateCrateFBX ${FBXSDK_LIBRARIES_DEBUG})
-target_link_libraries(CreateCrateFBXOld ${FBXSDK_LIBRARIES_DEBUG})
 
 target_link_libraries(CreateVolcapFBX ${PCL_LIBRARIES})
 #target_link_libraries(CreateVolcapFBX ${FBXSDK_LIBRARIES_DEBUG})
