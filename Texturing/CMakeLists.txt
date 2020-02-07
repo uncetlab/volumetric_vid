@@ -43,7 +43,8 @@ add_definitions(${PCL_DEFINITIONS})
 #    set(YOUR_LIBRARIES ${YOUR_LIBRARIES} ${BLEND2D_LIBRARY})
 #endif ()
 
-set(BLEND2D_LIBRARY "C:/Users/maxhu/repos/blend2d/blend2d/build/Debug/blend2d.lib")
+#set(BLEND2D_LIBRARY "C:/Users/maxhu/repos/blend2d/blend2d/build/Debug/blend2d.lib")
+set(BLEND2D_LIBRARY "C:/Users/maxhu/repos/blend2d/blend2d/build64/Debug/blend2d.lib")
 set(BLEND2D_INCLUDE_PATH "C:/Users/maxhu/repos/blend2d/blend2d/src")
 #message(FATAL_ERROR "BLEND2D_INCLUDE_DIR not found:")
 message("BLEND2D_LIBRARY = '${BLEND2D_LIBRARY}'")
@@ -54,13 +55,13 @@ include_directories(${BLEND2D_INCLUDE_PATH})
 
 
 # add the executable
-add_executable(Texturing "texture_mapping.cpp" "texturing.cpp")
-add_executable(CustomTexturing "custom_texture_mapping.cpp" "texturing.cpp")
+add_executable(TextureMapping "texture_mapping.cpp" "texturing.cpp")
+add_executable(CustomTextureMapping "custom_texture_mapping.cpp" "texturing.cpp")
 add_executable(Blend2D_test "blend2d_test.cpp")
 
 # specify include dirs for given target
-target_link_libraries(Texturing ${PCL_LIBRARIES})
-target_link_libraries(Texturing ${BLEND2D_LIBRARY})
-target_link_libraries(CustomTexturing ${PCL_LIBRARIES})
-target_link_libraries(CustomTexturing ${BLEND2D_LIBRARY})
+target_link_libraries(TextureMapping ${PCL_LIBRARIES})
+target_link_libraries(TextureMapping ${BLEND2D_LIBRARY})
+target_link_libraries(CustomTextureMapping ${PCL_LIBRARIES})
+target_link_libraries(CustomTextureMapping ${BLEND2D_LIBRARY})
 target_link_libraries(Blend2D_test ${BLEND2D_LIBRARY})

@@ -384,7 +384,7 @@ void hardcodeLoadCameraParam(pcl::TextureMapping<pcl::PointXYZ>::Camera &cam) {
 //	//pcl::io::saveOBJFile("C:/Users/maxhu/Desktop/uvatlas_example/test_texturing_50_02.obj", tmesh);
 //}
 
-// copying image textures onto UVAtlas' uv-map
+// copying image textures onto UVAtlas' uv-map, using greedy PCL segmentation from textureMeshwithMultipleCameras
 int main(int argc, char** argv) {
 
 	//==> load TextureMesh with UVAtlas' uv-mapping
@@ -396,54 +396,104 @@ int main(int argc, char** argv) {
 	pcl::texture_mapping::CameraVector my_cams;
 	loadCameraParams("C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/calibration_171026_pose3.json", my_cams);
 
-	//==> segment by camera visibility
-	pcl::TextureMapping<pcl::PointXYZ> tm;
-	pcl::TextureMesh sorted_tmesh;
-	pcl::TextureMapping<pcl::PointXYZ>::PointCloud visible_pts;
+	//==> segment using custom func
+	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> tex_coords;
+	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> img_coords;
+	segmentUVMeshByCamera(tmesh, my_cams, tex_coords, img_coords);
 
-	// this actually deletes faces from tmesh.tex_polygons
-	// this also segments faces in a greedy manner (no face is seen by more than 1 cam)
-	// this copies tex_coordinates / tex_materials directly from tmesh into sorted_tmesh
-	tm.sortFacesByCamera(tmesh, sorted_tmesh, my_cams, 1.0, visible_pts);
-	//int sorted_tmesh_faces = 0;
-	//for (int i = 0; i < sorted_tmesh.tex_polygons.size(); i++) {
-	//	sorted_tmesh_faces += sorted_tmesh.tex_polygons[i].size();
-	//}
-
-	//==> project points to 2d planes to get img coords
-	//std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> img_coords;
-	std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> img_coords;
-
-	// change to PointCloud for easier access
-	//pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-	pcl::PointCloud<pcl::PointXYZ> cloud;
-	pcl::fromPCLPointCloud2(tmesh.cloud, cloud);
-
-	// loop thru submeshes (aka cameras)
-	for (int submesh_idx=0; submesh_idx < tmesh.tex_polygons.size(); submesh_idx++)
-	{
-		std::vector<pcl::Vertices> &submesh = tmesh.tex_polygons[submesh_idx];
-
-		for (int face_idx = 0; face_idx < submesh.size(); face_idx++) {
-			pcl::Vertices &face = submesh[face_idx];
-
-			int point_idx_0 = face.vertices[0];
-			int point_idx_1 = face.vertices[1];
-			int point_idx_2 = face.vertices[2];
-
-			Eigen::Vector2f img_coord_0;
-			Eigen::Vector2f img_coord_1;
-			Eigen::Vector2f img_coord_2;
-
-			tm.getPointUVCoordinates(cloud[point_idx_0], my_cams[submesh_idx], img_coord_0);
-			tm.getPointUVCoordinates(cloud[point_idx_0], my_cams[submesh_idx], img_coord_1);
-			tm.getPointUVCoordinates(cloud[point_idx_0], my_cams[submesh_idx], img_coord_2);
-		}
-
+	//==> prepare image files
+	std::vector<std::string> img_files;
+	for (int cam_idx = 0; cam_idx < my_cams.size(); cam_idx++) {
+		img_files.push_back(my_cams[cam_idx].texture_file);
 	}
 
 	//==> generate texture map
-	std::string texture_file_name = "uvatlas_texture_map.bmp";
-	generateUVTextureFromImages(texture_file_name, sorted_tmesh.tex_coordinates, img_coords, img_files);
+	//std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/test_panoptic_texture_all.bmp";
+	std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/test_panoptic_texture_04.bmp";
+	generateUVTextureFromImages(texture_file_name, tex_coords, img_coords, img_files);
+
+
+	////==> segment by camera visibility (USING PCL's FUNCS)
+	//pcl::TextureMapping<pcl::PointXYZ> tm;
+
+	////pcl::TextureMesh sorted_tmesh;
+	////pcl::TextureMapping<pcl::PointXYZ>::PointCloud visible_pts;
+	////// this actually deletes faces from tmesh.tex_polygons
+	////// this also segments faces in a greedy manner (no face is seen by more than 1 cam)
+	////// this copies tex_coordinates / tex_materials directly from tmesh into sorted_tmesh (does NOT resort tex_coordinates)
+	////tm.sortFacesByCamera(tmesh, sorted_tmesh, my_cams, 1.0, visible_pts); // DOES NOT resort tex_coordinates
+
+	//tm.textureMeshwithMultipleCameras(tmesh, my_cams);						// OVERWRITES tex_coordinates with 3d faces projected on 2d camera planes!
+
+	////==> project points to 2d planes to get img coords
+	//std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> img_coords;
+	////std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> img_coords;
+
+	//// change to PointCloud for easier access
+	////pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+	//pcl::PointCloud<pcl::PointXYZ> cloud;
+	//pcl::fromPCLPointCloud2(tmesh.cloud, cloud);
+
+	////pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+	//pcl::PointCloud<pcl::PointXYZ> transformed_cloud;
+
+
+	//// loop thru submeshes (aka cameras)
+	//int invis_face_count = 0;
+	//for (int submesh_idx=0; submesh_idx < tmesh.tex_polygons.size()-1; submesh_idx++)
+	//{
+	//	std::vector<pcl::Vertices> &submesh = tmesh.tex_polygons[submesh_idx];
+	//	std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> submesh_img_coords;
+
+	//	// transform original cloud in camera coordinates
+	//	Eigen::Affine3f cam_trans = my_cams[submesh_idx].pose;
+	//	pcl::transformPointCloud(cloud, transformed_cloud, cam_trans.inverse());
+
+	//	for (int face_idx = 0; face_idx < submesh.size(); face_idx++) {
+	//		pcl::Vertices &face = submesh[face_idx];
+
+	//		int point_idx_0 = face.vertices[0];
+	//		int point_idx_1 = face.vertices[1];
+	//		int point_idx_2 = face.vertices[2];
+
+	//		Eigen::Vector2f img_coord_0;
+	//		Eigen::Vector2f img_coord_1;
+	//		Eigen::Vector2f img_coord_2;
+
+	//		// determine 2d camera coordinates of a 3d face
+	//		//tm.getPointUVCoordinates(cloud[point_idx_0], my_cams[submesh_idx], img_coord_0);
+	//		//tm.getPointUVCoordinates(cloud[point_idx_1], my_cams[submesh_idx], img_coord_1);
+	//		//tm.getPointUVCoordinates(cloud[point_idx_2], my_cams[submesh_idx], img_coord_2);
+
+	//		tm.getPointUVCoordinates(transformed_cloud[point_idx_0], my_cams[submesh_idx], img_coord_0);
+	//		tm.getPointUVCoordinates(transformed_cloud[point_idx_1], my_cams[submesh_idx], img_coord_1);
+	//		tm.getPointUVCoordinates(transformed_cloud[point_idx_2], my_cams[submesh_idx], img_coord_2);
+
+	//		Eigen::Vector2f invis_coord(-1.0, -1.0);
+	//		if (img_coord_0 == invis_coord || img_coord_1 == invis_coord || img_coord_2 == invis_coord) {
+	//			printf("ERROR cam %i: faces should be visible\n", submesh_idx);
+	//			invis_face_count++;
+	//		} else {
+	//			submesh_img_coords.push_back(img_coord_0);
+	//			submesh_img_coords.push_back(img_coord_1);
+	//			submesh_img_coords.push_back(img_coord_2);
+	//		}
+	//	}
+
+	//	img_coords.push_back(submesh_img_coords);
+
+	//}
+	//printf("invis_face_count: %i\n", invis_face_count);
+
+	////==> prepare image files
+	//std::vector<std::string> img_files;
+	//for (int cam_idx = 0; cam_idx < my_cams.size(); cam_idx++) {
+	//	img_files.push_back(my_cams[cam_idx].texture_file);
+	//}
+
+	////==> generate texture map
+	//std::string texture_file_name = "uvatlas_texture_map.bmp";
+	////generateUVTextureFromImages(texture_file_name, sorted_tmesh.tex_coordinates, img_coords, img_files);
+	//generateUVTextureFromImages(texture_file_name, tmesh.tex_coordinates, img_coords, img_files);
 	
 }
