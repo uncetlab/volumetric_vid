@@ -311,10 +311,9 @@ void Texturing::determineOccludedFaces(
 	const pcl::TextureMesh &mesh, 
 	const pcl::TextureMapping<pcl::PointXYZ>::Camera &cam, 
 	std::vector<bool> &visible_faces,
-	pcl::PointCloud<pcl::PointXY>::Ptr projections //std::vector<Eigen::Vector2f> &projected_cloud
+	pcl::PointCloud<pcl::PointXY>::Ptr projections  //!< same size as mesh_cloud, indices correspond
 ) {	
 	// initialize
-
 
 	// transform cloud to camera space
 	pcl::PointCloud<pcl::PointXYZ>::Ptr mesh_cloud(new pcl::PointCloud<pcl::PointXYZ>);
@@ -342,10 +341,8 @@ void Texturing::determineOccludedFaces(
 	//}
 
 	// project cloud to cam's 2d plane
-	//pcl::TextureMapping<pcl::PointXYZ> tm;
 	for (int i = 0; i < camera_cloud->size(); i++) {
 		Eigen::Vector2f img_coord;
-		//tm.getPointUVCoordinates((*camera_cloud)[i], cam, img_coord);
 		getPointUVCoordinates((*camera_cloud)[i], cam, img_coord);
 
 		pcl::PointXY pt_xy;
@@ -355,23 +352,40 @@ void Texturing::determineOccludedFaces(
 		projections->push_back(pt_xy);
 	}
 
+	// build projections_face_idx
+	std::vector<std::vector<int>> projections_face_idx(mesh_cloud->size());  // list of faces for each point
+	//int projections_face_idx[mesh_cloud->size()];
+	//std::array<int, mesh_cloud->size()> projections_face_idx;
+	const std::vector<pcl::Vertices> &submesh = mesh.tex_polygons[0];
+	for (int idx_face = 0; idx_face < submesh.size(); idx_face++) {
+		int idx_pt0 = submesh[idx_face].vertices[0];
+		int idx_pt1 = submesh[idx_face].vertices[1];
+		int idx_pt2 = submesh[idx_face].vertices[2];
+
+		projections_face_idx[idx_pt0].push_back(idx_face);
+		projections_face_idx[idx_pt1].push_back(idx_face);
+		projections_face_idx[idx_pt2].push_back(idx_face);
+	}
+
 	// create kdtree
 	pcl::KdTreeFLANN<pcl::PointXY> kdtree;
 	kdtree.setInputCloud(projections);
-
 	
 	// af first (idx_pcan < current_cam), check if some of the faces attached to previous cameras occlude the current faces
 	// then (idx_pcam == current_cam), check for self occlusions. At this stage, we skip faces that were already marked as occluded
 	//cpt_invisible = 0;
 
-	// project all faces
-	const std::vector<pcl::Vertices> &submesh = mesh.tex_polygons[0];
+	// determine occlusion status for all tris
 	visible_faces.resize(submesh.size(), true);  // init to the num of faces
 	for (int idx_face = 0; idx_face < submesh.size(); idx_face++)  // static_cast<int> (mesh.tex_polygons[idx_pcam].size()
 	{
 		int idx_pt0 = submesh[idx_face].vertices[0];
 		int idx_pt1 = submesh[idx_face].vertices[1];
 		int idx_pt2 = submesh[idx_face].vertices[2];
+
+		pcl::PointXYZ pt0 = camera_cloud->points[idx_pt0];
+		pcl::PointXYZ pt1 = camera_cloud->points[idx_pt1];
+		pcl::PointXYZ pt2 = camera_cloud->points[idx_pt2];
 
 		// project each vertice, if one is out of view, stop
 		pcl::PointXY uv_coord1 = (*projections)[idx_pt0];
@@ -381,51 +395,62 @@ void Texturing::determineOccludedFaces(
 		//pcl::PointXY invis_pt;
 		//invis_pt.x = -1.0;
 		//invis_pt.y = -1.0;
-		if (uv_coord1.x != -1.0 ||
-			uv_coord2.x != -1.0 ||
-			uv_coord3.x != -1.0) 
-		{
-			// face is in the camera's FOV
+		if (uv_coord1.x == -1.0 || uv_coord2.x == -1.0 || uv_coord3.x == -1.0) {
+			// face is not in the camera's FOV ==> skip!
+			continue;
+		}
 
-			// get the tri's circumsribed circle
-			double radius;
-			pcl::PointXY center;
-			getTriangleCircumcscribedCircleCentroid(uv_coord1, uv_coord2, uv_coord3, center, radius); // this function yields faster results than getTriangleCircumcenterAndSize
+		// get the tri's circumsribed circle
+		double radius;
+		pcl::PointXY center;
+		getTriangleCircumcscribedCircleCentroid(uv_coord1, uv_coord2, uv_coord3, center, radius); // this function yields faster results than getTriangleCircumcenterAndSize
 
-			// get projected points within circumscribed circle
-			std::vector<int> idxNeighbors;
-			std::vector<float> neighborsSquaredDistance;
-			if (kdtree.radiusSearch(center, radius, idxNeighbors, neighborsSquaredDistance) > 0) {
+		// get projected points within circumscribed circle
+		std::vector<int> idxNeighbors;
+		std::vector<float> neighborsSquaredDistance;
+		if (kdtree.radiusSearch(center, radius, idxNeighbors, neighborsSquaredDistance) > 0) {
 
-				for (size_t i = 0; i < idxNeighbors.size(); ++i) {
-					int idx_neighbor = idxNeighbors[i];
+			for (size_t i = 0; i < idxNeighbors.size(); ++i) {
+				int idx_neighbor = idxNeighbors[i]; 
+				pcl::PointXYZ neighbor = camera_cloud->points[idx_neighbor];
 
-					float max_z_face = std::max(camera_cloud->points[idx_pt0].z,
-						std::max(camera_cloud->points[idx_pt1].z, camera_cloud->points[idx_pt2].z));
+				if (idx_neighbor == idx_pt0 || idx_neighbor == idx_pt1 || idx_neighbor == idx_pt2) {
+					// don't count the vertices of our current face
+					continue;
+				}
 
-					//// if neighbor is farther than all the face's points => it is a candidate for occlusion
-					//if (max_z_face < camera_cloud->points[idx_neighbor].z)  // indexes_uv_to_points[idxNeighbors[i]].idx_cloud
-					//{
-					//	// check if it falls into the triangle
-					//	if (checkPointInsideTriangle(uv_coord1, uv_coord2, uv_coord3, projections->points[idx_neighbor]))
-					//	{
-					//		// current neighbor is inside triangle and is closer => the corresponding face
-					//		// current neighbor is inside triangle and is further away => it's face is occluded -- mh
-					//		visibility[indexes_uv_to_points[idxNeighbors[i]].idx_face] = false;
-					//	}
-					//}
+				//if (projections_face_idx[idx_neighbor] == -1) {
+				//	continue;
+				//}
 
-					// if neighbor is closer than all the face's points => it may be occluding our face
-					if (max_z_face > camera_cloud->points[idx_neighbor].z)  // indexes_uv_to_points[idxNeighbors[i]].idx_cloud
+				float max_z_of_face = std::max(camera_cloud->points[idx_pt0].z,
+					std::max(camera_cloud->points[idx_pt1].z, camera_cloud->points[idx_pt2].z));
+
+				// if neighbor is farther than all the face's points => it is a candidate for occlusion
+				if (max_z_of_face < camera_cloud->points[idx_neighbor].z)  // indexes_uv_to_points[idxNeighbors[i]].idx_cloud
+				{
+					// check if it falls into the triangle
+					if (checkPointInsideTriangle(uv_coord1, uv_coord2, uv_coord3, projections->points[idx_neighbor]))
 					{
-						// check if it falls into the triangle
-						if (checkPointInsideTriangle(uv_coord1, uv_coord2, uv_coord3, projections->points[idx_neighbor]))
-						{
-							// current neighbor is inside the triangle and is closer => idx_face is occluded -- mh
-							visible_faces[idx_face] = false;
+						// current neighbor is inside triangle and is further away => it's faces are occluded
+						//visibility[indexes_uv_to_points[idxNeighbors[i]].idx_face] = false;
+						std::vector<int> &neighbors_faces = projections_face_idx[idx_neighbor];
+						for (int j = 0; j < projections_face_idx[idx_neighbor].size(); j++) {
+							visible_faces[projections_face_idx[idx_neighbor][j]] = false;
 						}
 					}
 				}
+
+				//// if neighbor is closer than all the face's points => it may be occluding our face
+				//if (camera_cloud->points[idx_neighbor].z < max_z_of_face)  // indexes_uv_to_points[idxNeighbors[i]].idx_cloud
+				//{
+				//	// check if it falls into the triangle
+				//	if (checkPointInsideTriangle(uv_coord1, uv_coord2, uv_coord3, projections->points[idx_neighbor]))
+				//	{
+				//		// current neighbor is inside the triangle and is closer => idx_face is occluded -- mh
+				//		visible_faces[idx_face] = false;
+				//	}
+				//}
 			}
 		}
 	}
