@@ -68,17 +68,19 @@ class Texturing : pcl::TextureMapping<pcl::PointXYZ> {
 	/**
 	 * @brief Uses a kdtree to determine occluded faces as in pcl::TextureMapping::textureMeshwithMultipleCameras
 	 *
+	 * @remark algorithm adapted from pcl::TextureMapping::textureMeshwithMultipleCameras()
 	 * @todo Perform back-culling to easily remove faces not facing the camera. This should remove many faces from the start and speed things up.
 	 *
 	 * @param[in] camera_cloud		a point cloud transformed to camera's space
 	 * @param[in] projected_cloud	camera_cloud projected to 2d cam surface
-	 * @param[out] 
+	 * @param[out] visible_faces	list of booleans indicating face occlusion (per cam)
+	 * @param[out] projections		clouds projected to 2d cam planes (per cam)
 	 */
 	void determineOccludedFaces(
 		const pcl::TextureMesh &mesh,
 		const pcl::TextureMapping<pcl::PointXYZ>::Camera &cam,
 		std::vector<bool> &visible_faces,
-		pcl::PointCloud<pcl::PointXY>::Ptr projections //std::vector<Eigen::Vector2f> &projected_cloud
+		pcl::PointCloud<pcl::PointXY>::Ptr projections
 	);
 };
 

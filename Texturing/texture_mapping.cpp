@@ -276,12 +276,12 @@ void custom_seg_demo() {
 
 	//==> load cameras
 	pcl::texture_mapping::CameraVector my_cams;
-	//loadCameraParams("C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/calibration_171026_pose3.json", my_cams);
+	loadCameraParams("C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/calibration_171026_pose3.json", my_cams);
 
-	// or specify just a single cam
-	std::vector<std::string> cams_to_use;  // list of camera names to get loaded
-	cams_to_use.push_back("50_02");
-	loadCameraParams("C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/calibration_171026_pose3.json", my_cams, &cams_to_use);
+	//// or specify just a single cam
+	//std::vector<std::string> cams_to_use;  // list of camera names to get loaded
+	//cams_to_use.push_back("50_02");
+	//loadCameraParams("C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/calibration_171026_pose3.json", my_cams, &cams_to_use);
 
 	//==> segment using custom func
 	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> tex_coords;
@@ -297,7 +297,8 @@ void custom_seg_demo() {
 	//==> generate texture map using UVAtlas' uv-map, greedy custom segmentation
 	//std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/test_panoptic_texture_all.bmp";
 	//std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/test_panoptic_texture_04.bmp";
-	std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/kd-tree_occlusion_50_02.bmp";
+	//std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/kd-tree_occlusion_50_02.bmp";
+	std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/kd-tree_occlusion_all.bmp";
 	t.generateUVTextureFromImages(texture_file_name, tex_coords, img_coords, img_files);
 }
 
