@@ -18,6 +18,43 @@ T element_at(pt::ptree const& pt, std::string name, size_t n) {
 	return std::next(pt.get_child(name).find(""), n)->second.get_value<T>();
 }
 
+/* loads all TextureMeshes (saved as .obj files) from a dir (assumes every file is a .obj file)
+ * works with .obj files which only have 1 material
+ *
+ * @todo: load this method from another file instead of pasting here
+ */
+void load_meshes_from_dir(const std::string dir_name, std::vector<pcl::TextureMeshPtr> &meshes, std::vector<std::string> &mesh_filenames) {
+	boost::filesystem::path input_dir(dir_name);
+
+	boost::filesystem::directory_iterator it{ input_dir };
+	int i = 0;
+	while (it != boost::filesystem::directory_iterator{}) {
+		// Get input / output paths
+		boost::filesystem::directory_entry entry = *it++;
+		boost::filesystem::path path = entry.path();
+		std::string filename = path.stem().string();  // .filename() includes extension, use .stem() instead
+
+		if (boost::filesystem::extension(path) != ".obj") {
+			printf("skipping file with extension: %s\n", boost::filesystem::extension(path).c_str());
+			continue;
+		}
+		printf("loading TextureMesh %i\n", i++);
+
+		std::string mesh_path = path.string();
+
+		pcl::TextureMeshPtr mesh(boost::make_shared<pcl::TextureMesh>());
+		pcl::io::loadOBJFile(mesh_path, *mesh);		// this is broken for TextureMeshes with multiple materials, 
+													// all texture coordinates get loaded into the first submesh 
+													// (any other submeshes get no texture coordinates)
+
+		//edit texture files to be full paths (necessary when creating textures)
+		mesh->tex_materials[0].tex_file = dir_name + "/" + mesh->tex_materials[0].tex_file;
+
+		meshes.push_back(mesh);
+		mesh_filenames.push_back(filename);
+	}
+}
+
 /** \brief Display a 3D representation showing the a cloud and a list of camera with their 6DOf poses */
 void showCameras(pcl::texture_mapping::CameraVector cams, pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud)
 {
@@ -302,6 +339,57 @@ void custom_seg_demo() {
 	t.generateUVTextureFromImages(texture_file_name, tex_coords, img_coords, img_files);
 }
 
+void custom_seg_dir_demo(std::string input_dir, std::string output_dir, std::string calibration_file) {
+	Texturing t;
+
+	//==> load uv-mapped texture meshes
+	std::vector<pcl::TextureMeshPtr> meshes;
+	std::vector<std::string> mesh_ids;
+	load_meshes_from_dir(input_dir, meshes, mesh_ids);
+
+	//==> load cameras
+	pcl::texture_mapping::CameraVector my_cams;		// note we don't use the 'texture_file' member of the cams in our funcs, so the cams are reused for
+													// every frame. we prepare the texture files for each frame using `img_files` vector
+	loadCameraParams(calibration_file, my_cams);
+
+	int seq_start_frame = 380;  // hardcoded for demo!
+	for (int idx_mesh = 0; idx_mesh < meshes.size(); idx_mesh++, seq_start_frame++) {
+		pcl::TextureMesh &mesh = *meshes[idx_mesh];
+
+		//==> segment using custom func
+		std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> tex_coords;
+		std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> img_coords;
+		t.segmentUVMeshByCamera(mesh, my_cams, tex_coords, img_coords);
+
+		//==> prepare image files
+		std::vector<std::string> img_files;
+		for (int idx_cam = 0; idx_cam < my_cams.size(); idx_cam++) {
+			//50_02_00000001.jpg
+			boost::filesystem::path tex_file_path(my_cams[idx_cam].texture_file);
+			std::string tex_filename = tex_file_path.filename().string();
+			std::string cam_name = tex_filename.substr(0, 5);  // assume cam name is first 5 chars of texture_file
+			char file_name[19];  // file name lengths are all 18, use 19 to prevent mem error
+			sprintf(file_name, "%s_%08i.jpg", cam_name.c_str(), seq_start_frame++);
+			std::string file_name_str(file_name);
+
+			std::string parent_path = tex_file_path.parent_path().string();
+			std::string full_path = parent_path + "/" + file_name_str;
+			img_files.push_back(full_path);
+		}
+
+		//==> generate texture map using UVAtlas' uv-map, greedy custom segmentation
+		std::string texture_file_name = output_dir + mesh_ids[idx_mesh] + ".bmp";
+		t.generateUVTextureFromImages(texture_file_name, tex_coords, img_coords, img_files);
+
+		//==> update TextureMesh material to use new texture file
+		mesh.tex_materials[0].tex_file = texture_file_name;
+
+		//==> resave TextureMesh as .obj
+		std::string obj_path = output_dir + mesh_ids[idx_mesh] + ".obj";  // path must be declared with forward slashes to work correctly
+		pcl::io::saveOBJFile(obj_path, mesh);
+	}
+}
+
 // PCL's textureMeshwithMultipleCameras() demo
 // textureMeshwithMultipleCameras does camera segmentation and the uv mapping for each camera
 void pcl_texture_demo() {
@@ -512,7 +600,14 @@ void pcl_texture_demo() {
 // copying image textures onto UVAtlas' uv-map, using greedy PCL segmentation from textureMeshwithMultipleCameras
 int main(int argc, char** argv) {
 
-	custom_seg_demo();
+	// single test on test_panoptic.obj
+	//custom_seg_demo();
+
+	// texture demo sequence
+	std::string input_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/uvatlas_mapped";
+	std::string output_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_texture_mapped/";
+	std::string calibration_file = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/calibration_171026_pose3.json";
+	custom_seg_dir_demo(input_dir, output_dir, calibration_file);
 
 	//pcl_texture_demo();
 
