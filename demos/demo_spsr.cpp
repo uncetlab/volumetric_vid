@@ -4,7 +4,7 @@
 #include <pcl/io/ply_io.h>
 #include <boost/filesystem.hpp>
 #include <iostream>
-#include "../src/volcap/surface/spsr.h"
+#include <volcap/surface/spsr.h>
 
 
 // Performs SPSR on a short sequence of (.ply) point clouds

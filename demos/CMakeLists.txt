@@ -19,8 +19,13 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
+# include volcap for all targets
+include_directories("../src")
+
 # add targets
 add_executable(DemoSPSR "demo_spsr.cpp" "../src/volcap/surface/spsr.cpp")
+add_executable(DemoMLS "demo_mls.cpp" "../src/volcap/surface/spsr.cpp")
 
 # specify include dirs for given target
 target_link_libraries(DemoSPSR ${PCL_LIBRARIES})
+target_link_libraries(DemoMLS ${PCL_LIBRARIES})
