@@ -11,6 +11,20 @@ void compute_mesh(const pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr &input, pcl
 	poisson.setPointWeight(point_weight);
 	poisson.setInputCloud(input);
 	poisson.reconstruct(output);
+
+	// copy normal information into output's cloud?
+
+}
+
+void compute_mesh(const pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr &input, pcl::PointCloud<pcl::PointXYZRGBNormal> &out_points, std::vector<pcl::Vertices> &out_polygons,
+	int depth, int solver_divide, int iso_divide, float point_weight) {
+	pcl::Poisson<pcl::PointXYZRGBNormal> poisson;
+	poisson.setDepth(depth);
+	poisson.setSolverDivide(solver_divide);
+	poisson.setIsoDivide(iso_divide);
+	poisson.setPointWeight(point_weight);
+	poisson.setInputCloud(input);
+	poisson.reconstruct(out_points, out_polygons);
 }
 
 void decimate_mesh(const pcl::PolygonMesh::Ptr &input_mesh, float p, pcl::PolygonMesh &output_mesh) {

@@ -11,6 +11,9 @@ const float DEFAULT_POINT_WEIGHT = 4.0f;
 void compute_mesh(const pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr &input, pcl::PolygonMesh &output,
 	int depth=DEFAULT_DEPTH, int solver_divide=DEFAULT_SOLVER_DIVIDE, int iso_divide=DEFAULT_ISO_DIVIDE, float point_weight=DEFAULT_POINT_WEIGHT);
 
+void compute_mesh(const pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr &input, pcl::PointCloud<pcl::PointXYZRGBNormal> &out_points, std::vector<pcl::Vertices> &out_polygons,
+	int depth = DEFAULT_DEPTH, int solver_divide = DEFAULT_SOLVER_DIVIDE, int iso_divide = DEFAULT_ISO_DIVIDE, float point_weight = DEFAULT_POINT_WEIGHT);
+
 /**
  *  p: percentage of faces to remove
  */

@@ -25,6 +25,7 @@ int main(int argc, char** argv)
 		boost::filesystem::path in_p = entry.path();
 
 		//std::cout << entry << '\n' << in_p << '\n' << out_p << '\n';
+		printf("file to be loaded: %s", in_p.string().c_str());
 
 		// Read in point cloud into cloud_xyzrgbnormals
 		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud_xyzrgbnormals(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
@@ -53,8 +54,8 @@ int main(int argc, char** argv)
 		boost::filesystem::create_directory(decimated_out_p.parent_path());
 
 		// Save reconstructed mesh to ply
-		pcl::io::savePLYFile(out_p.string(), *output);
-		pcl::io::savePLYFile(decimated_out_p.string(), decimated_output);
+		//pcl::io::savePLYFile(out_p.string(), *output);
+		//pcl::io::savePLYFile(decimated_out_p.string(), decimated_output);
 	}
 
 	return (0);
