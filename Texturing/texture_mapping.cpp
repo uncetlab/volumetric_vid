@@ -382,7 +382,7 @@ void custom_seg_dir_demo(std::string input_dir, std::string output_dir, std::str
 		t.generateUVTextureFromImages(texture_file_name, tex_coords, img_coords, img_files);
 
 		//==> update TextureMesh material to use new texture file
-		mesh.tex_materials[0].tex_file = texture_file_name;
+		mesh.tex_materials[0].tex_file = texture_file_name;  // saving full path in texture material
 
 		//==> resave TextureMesh as .obj
 		std::string obj_path = output_dir + mesh_ids[idx_mesh] + ".obj";  // path must be declared with forward slashes to work correctly

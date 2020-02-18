@@ -1,3 +1,6 @@
+/*
+ * This demo shows a mesh being textured using PCL's UV mapping technique (produces bugged output)
+ */
 #include <pcl/surface/texture_mapping.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/io/obj_io.h>

@@ -2,7 +2,6 @@
 #include <iostream>
 #include <stdio.h>
 //#include <pcl/io/pcd_io.h>
-//#include <pcl/point_types.h>
 #include <pcl/point_types.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/io/ply_io.h>

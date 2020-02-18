@@ -36,9 +36,17 @@ int main(int argc, char** argv)
 		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr xyz_cloud_smoothed(new pcl::PointCloud<pcl::PointXYZRGBNormal>());
 		mls.process(*xyz_cloud_smoothed);
 
+		//// Write output to ply
+		////std::string fname_out = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/cloud_mls/ptcloud_hd00000380_orig_normals_"+ std::to_string(i) +".ply";
+		//boost::filesystem::path out_p = in_p.parent_path().parent_path() / "cloud_mls" / in_p.filename();
+		//pcl::io::savePLYFileASCII(out_p.string(), *xyz_cloud_smoothed);
+
 		// compute spsr
 		pcl::PolygonMesh::Ptr psr_mesh(boost::make_shared<pcl::PolygonMesh>());
 		compute_mesh(xyz_cloud_smoothed, *psr_mesh);
+		//pcl::PointCloud<pcl::PointXYZRGBNormal> points;
+		//std::vector<pcl::Vertices> polygons;
+		//compute_mesh(xyz_cloud_smoothed, points, polygons);
 
 		// decimate mesh
 		pcl::PolygonMesh decimated_mesh;

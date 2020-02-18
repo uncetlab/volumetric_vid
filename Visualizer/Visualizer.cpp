@@ -62,17 +62,17 @@ void load_meshes_from_dir(const std::string dir_name, std::vector<pcl::TextureMe
 		std::string mesh_path = path.string();
 
 		pcl::TextureMeshPtr mesh(boost::make_shared<pcl::TextureMesh>());
-		//pcl::io::loadOBJFile(mesh_path, *mesh);		// this is broken for TextureMeshes with multiple materials, 
-		//											// all texture coordinates get loaded into the first submesh 
-		//											// (any other submeshes get no texture coordinates)
+		pcl::io::loadOBJFile(mesh_path, *mesh);		// this is broken for TextureMeshes with multiple materials, 
+													// all texture coordinates get loaded into the first submesh 
+													// (any other submeshes get no texture coordinates)
 
-		// quick hack  -- this just uses material_0 for every submesh, since visualization only supports 1 material
-		// (this causes each submesh other than the first to look wrong)
-		pcl::io::loadPolygonFileOBJ(mesh_path, *mesh);
-		pcl::TextureMesh mesh2;
-		pcl::io::loadOBJFile(mesh_path, mesh2);
-		mesh->tex_materials.clear();
-		mesh->tex_materials.push_back(mesh2.tex_materials[0]);
+		//// quick hack for files with multiple materials -- this just uses material_0 for every submesh, since visualization only supports 1 material
+		//// (this causes each submesh other than the first to look wrong)
+		//pcl::io::loadPolygonFileOBJ(mesh_path, *mesh);
+		//pcl::TextureMesh mesh2;
+		//pcl::io::loadOBJFile(mesh_path, mesh2);
+		//mesh->tex_materials.clear();
+		//mesh->tex_materials.push_back(mesh2.tex_materials[0]);
 
 		meshes.push_back(mesh);
 		mesh_ids.push_back(mesh_path);
@@ -363,7 +363,7 @@ void viz_single_obj(const std::string obj_path) {
 	// Setup visualizer
 	boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
 	//viewer->setPosition(0, 0);
-	viewer->setSize(1920, 1080);
+	//viewer->setSize(1920, 1080);
 
 	//viewer->setCameraPosition(-236.42, -82.3299, -90.4387, -8.27996, -87.1787, 15.629, -0.0378362, -0.998645, 0.0357294); 
 	//viewer->setCameraPosition(8.436389419, -103.2375178, -270.2602032, -8.27996, -87.1787, 15.629, -0.0378362, -0.998645, 0.0357294); // manually positioned / oriented camera
@@ -406,11 +406,12 @@ void viz_single_obj(const std::string obj_path) {
 
 	// load TextureMesh from .obj file
 	pcl::TextureMeshPtr mesh(boost::make_shared<pcl::TextureMesh>());
-	pcl::io::loadOBJFile(obj_path, *mesh);
+	int err = pcl::io::loadOBJFile(obj_path, *mesh);	// material file path (specified in .obj) must be local 
+														// tex file (specified in .mtl) can be absolute (and local maybe?)
 
-	viewer->addTextureMesh(*mesh, "mesh");
+	viewer->addTextureMesh(*mesh, "mesh");  // .mtl texture file must be an absolute path!
 
-	viewer->spinOnce(1, true);
+	//viewer->spinOnce(1, true);
 	//viewer->saveScreenshot("C:/Users/maxhu/Desktop/uvatlas_example/test_panoptic_screenshot.png");
 	while (!viewer->wasStopped()) {
 		viewer->spinOnce(100);
@@ -444,18 +445,29 @@ int main(int argc, char** argv) {
 	//std::string dir_name2 = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/cloud_mls/spsr_full";
 	//viz_seq_dual(dir_name1, dir_name2, "", "", "cloud", "mesh");
 
-	//// visualize single obj mesh with tex
-	////std::string obj_path = "C:/Users/maxhu/Desktop/uvatlas_example/cube.obj";
-	////std::string obj_path = "C:/Users/maxhu/Desktop/uvatlas_example/test_cube_remapped.obj";
-	//std::string obj_path = "C:/Users/maxhu/Desktop/uvatlas_example/test_panoptic.obj";
-	//viz_single_obj(obj_path);
-
-	// visualize TextureMesh
-	std::string dir_name = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh";
-	viz_mesh_seq(dir_name, "TextureMesh");
-	//viz_mesh_seq(dir_name, "PolygonMesh");
-
 	////// seq length 1 test
 	//std::string dir_name = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/cloud_mls/single_test";
 	//viz_mesh_seq(dir_name, "PolygonMesh");
+
+
+	//// visualize single obj mesh with tex
+	//// material file path (specified in .obj) must be local
+	//// tex file path (specified in.mtl) must be absolute
+	//std::string obj_path = "C:/Users/maxhu/Desktop/uvatlas_example/cube.obj";  // no material (access violation error)
+	//std::string obj_path = "C:/Users/maxhu/Desktop/uvatlas_example/test_cube.obj";  // single mat with .jpg tex (local .mtl path, absolute tex path) --works!!
+	//std::string obj_path = "C:/Users/maxhu/Desktop/uvatlas_example/test_panoptic.obj";  // single mat with .bmp tex (absolute path) (red)
+	std::string obj_path = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_texture_mapped/ptcloud_hd00000380_normals_cleaned.obj";  // (local .mtl path, absolute tex path) (red)
+	//std::string obj_path = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient/bmps/ptcloud_hd00000380_normals_cleaned.obj"; // (local .mtl path, absolute tex path) (red)
+	//std::string obj_path = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient/pngs/ptcloud_hd00000380_normals_cleaned.obj"; // (local .mtl path, absolute tex path) (weird black lines)
+	//std::string obj_path = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient/jpgs/ptcloud_hd00000380_normals_cleaned.obj"; // (local .mtl path, absolute tex path) (weird black lines)
+	viz_single_obj(obj_path);
+
+	//// visualize TextureMesh
+	//std::string dir_name = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh";
+	//viz_mesh_seq(dir_name, "TextureMesh");
+	////viz_mesh_seq(dir_name, "PolygonMesh");
+
+	//// visualize UV gradient Texture
+	//std::string dir_name = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uv_gradient";
+	//viz_mesh_seq(dir_name, "TextureMesh");
 }

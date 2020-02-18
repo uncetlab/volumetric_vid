@@ -343,7 +343,8 @@ int main(int argc, char** argv) {
 	//==> convert a dir of .obj files into .fbx
 	std::vector<pcl::TextureMeshPtr> meshes;
 	std::vector<std::string> mesh_filenames;
-	std::string input_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient";
+	//std::string input_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient";
+	std::string input_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient/pngs";
 	load_meshes_from_dir(input_dir, meshes, mesh_filenames);
 
 	std::string output_dir = input_dir + "/fbx/";

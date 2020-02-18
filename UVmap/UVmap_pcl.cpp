@@ -69,23 +69,26 @@ int main(int argc, char** argv)
 	//pcl::io::loadOBJFile("C:/Users/maxhu/Desktop/uvatlas_example/test_panoptic.obj", texture_mesh);
 	//generateGradientTexture("C:/Users/maxhu/Desktop/uvatlas_example/test_panoptic.bmp", texture_mesh.tex_coordinates[0]);
 
+
+	//// ********** 
 	std::vector<pcl::PolygonMeshPtr> p_meshes;
 	std::vector<std::string> mesh_ids;
 	std::string dir_name = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/cloud_mls/spsr_decimated_0.900000";
 
 	load_meshes_from_dir(dir_name, p_meshes, mesh_ids);
 
-	//// ********** 
 	//// load .ply mesh file
 	//pcl::PolygonMesh pmesh;
 	//std::string fname = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/cloud_mls/spsr_decimated_0.900000/ptcloud_hd00000380_normals_cleaned.ply";
 
 	//pcl::io::loadPLYFile(fname, pmesh);
 
-	std::string out_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient/";
+	//std::string out_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient/";
+	//std::string out_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient/pngs/";
+	std::string out_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/uvatlas_mapped/";
 	// loop thru list of poly meshes
-	//for (int idx_mesh = 0; idx_mesh < p_meshes.size(); idx_mesh++) {
-	for (int idx_mesh = 0; idx_mesh < 1; idx_mesh++) {
+	for (int idx_mesh = 0; idx_mesh < p_meshes.size(); idx_mesh++) {
+	//for (int idx_mesh = 0; idx_mesh < 2; idx_mesh++) {
 		pcl::PolygonMesh pmesh = *p_meshes[idx_mesh];
 		//std::string mesh_id = mesh_ids[idx_mesh];
 		boost::filesystem::path path1(mesh_ids[idx_mesh]);
@@ -277,40 +280,22 @@ int main(int argc, char** argv)
 		texture_mesh.tex_polygons.push_back(mesh_poly);
 		texture_mesh.tex_coordinates.push_back(mesh_tex);
 
-		// create PCL TexMaterial
-		pcl::TexMaterial mesh_material;
-
-		//mesh_material.tex_file = "uv_gradient.jpg";  // should be in same folder as output .obj
-		//mesh_material.tex_name = "material_0";
-
-		//std::string tex_path = "C:/Users/maxhu/Desktop/uvatlas_example/test_panoptic.bmp"; // single example
-		//std::string tex_path = out_dir + file_name + ".bmp";		// full path
-		//std::string tex_path = file_name + ".bmp";				// relative path (assumes .bmp will be in same folder as .obj)
-		std::string tex_path = "uv_gradient.png";				
+		////==> generate UV gradient map using UVAtlas' generated uv coords
+		//std::string tex_filename = file_name + ".bmp";
+		//std::string tex_path = out_dir + tex_filename;
 		//generateGradientTexture(tex_path, texture_mesh.tex_coordinates[0]);
 
-		mesh_material.tex_file = tex_path;  // should be in same folder as output .obj
+		//==> create PCL TexMaterial
+		pcl::TexMaterial mesh_material;
+		std::string tex_filename_png = file_name + ".png";
+		//mesh_material.tex_file = tex_filename;  // should be in same folder as output .obj
+		mesh_material.tex_file = tex_filename_png;  // should be in same folder as output .obj
 		mesh_material.tex_name = "material_0";
-
 		texture_mesh.tex_materials.push_back(mesh_material);
 
-		// MUST be declared with forward slashes to work correctly
-		//std::string obj_path = "C:/Users/maxhu/Desktop/uvatlas_example/test_panoptic.obj"; // single example
-		std::string obj_path = out_dir + file_name + ".obj";
-
+		//==> save to obj
+		std::string obj_path = out_dir + file_name + ".obj";  // path must be declared with forward slashes to work correctly
 		pcl::io::saveOBJFile(obj_path, texture_mesh);
-
-		//// visualize
-		//boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
-		//viewer->setPosition(0, 0);
-		//viewer->setSize(1173, 732);
-		//viewer->addCoordinateSystem(3.0);
-		//viewer->addTextureMesh(texture_mesh, "mesh");
-		//while (!viewer->wasStopped()) {
-		//	viewer->spinOnce(100);
-		//	//boost::this_thread::sleep(boost::posix_time::microseconds(100000));
-		//}
-
 
 		printf("saved obj to: %s\n", obj_path.c_str());
 	}
