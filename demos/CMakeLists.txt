@@ -1,15 +1,12 @@
 cmake_minimum_required (VERSION 3.8)
 
-# set the project name
-project(SPSR)
+project(demos)
 
-
-#
 # specify the c++ standard
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# set(CMAKE_CXX_EXTENSIONS OFF)
 
+# load PCL for all targets
 # find and loads settings from PCL
 # sets:
 #   - PCL_FOUND, 
@@ -22,8 +19,8 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-# add the executable
-add_executable(ComputeSPSR "main.cpp" "SPSR.cpp")
+# add targets
+add_executable(DemoSPSR "demo_spsr.cpp" "../src/volcap/surface/spsr.cpp")
 
 # specify include dirs for given target
-target_link_libraries(ComputeSPSR ${PCL_LIBRARIES})
+target_link_libraries(DemoSPSR ${PCL_LIBRARIES})

@@ -1,16 +1,5 @@
-﻿# CMakeList.txt : Top-level CMake project file, do global configuration
-# and include sub-projects here.
-#
-cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.8)
 
 project ("VolumetricVidCMake")
 
-# Include sub-projects.
-#add_subdirectory ("ComputeNormals")
-#add_subdirectory ("SPSR")
-add_subdirectory ("Visualizer")
-add_subdirectory ("MLS")
-add_subdirectory ("UVmap")
-#add_subdirectory ("Utilities")
-add_subdirectory ("Texturing")
-add_subdirectory ("fbx")
+add_subdirectory ("demos")

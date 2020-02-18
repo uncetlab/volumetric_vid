@@ -4,10 +4,10 @@
 #include <pcl/io/ply_io.h>
 #include <boost/filesystem.hpp>
 #include <iostream>
-#include "SPSR.h"
+#include "../src/volcap/surface/spsr.h"
 
 
-// Performs SPSR on a short sequence of point clouds
+// Performs SPSR on a short sequence of (.ply) point clouds
 int main(int argc, char** argv)
 {
 	//int default_depth = 8;
@@ -33,10 +33,10 @@ int main(int argc, char** argv)
 
 		// Compute reconstructed mesh
 		pcl::PolygonMesh::Ptr output(boost::make_shared<pcl::PolygonMesh>());
-		compute_mesh(cloud_xyzrgbnormals, *output);
+		volcap::surface::compute_mesh(cloud_xyzrgbnormals, *output);
 
 		// Decimate mesh
-		float percent_faces_removed = 0.9;
+		float percent_faces_removed = 0.8;
 
 		pcl::PolygonMesh decimated_output;
 		pcl::MeshQuadricDecimationVTK decimator;
@@ -54,8 +54,8 @@ int main(int argc, char** argv)
 		boost::filesystem::create_directory(decimated_out_p.parent_path());
 
 		// Save reconstructed mesh to ply
-		//pcl::io::savePLYFile(out_p.string(), *output);
-		//pcl::io::savePLYFile(decimated_out_p.string(), decimated_output);
+		pcl::io::savePLYFile(out_p.string(), *output);
+		pcl::io::savePLYFile(decimated_out_p.string(), decimated_output);
 	}
 
 	return (0);
