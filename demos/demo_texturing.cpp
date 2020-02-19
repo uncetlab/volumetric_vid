@@ -113,6 +113,7 @@ void showCameras(pcl::texture_mapping::CameraVector cams, pcl::PointCloud<pcl::P
 /** 
  * custom segmentation + texturing demo
  * uses UVAtlas' uv-mapping + original images to create a single texture file for the mesh
+ * output is currently just a .bmp texture map, you must manually set the tex in material file to it
  */
 void custom_seg_demo() {
 	volcap::texture::Texturing t;
@@ -482,11 +483,11 @@ int main(int argc, char** argv) {
 	//// single test on test_panoptic.obj
 	//custom_seg_demo();
 
-	//// texture demo sequence
-	//std::string input_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/uvatlas_mapped";
-	//std::string output_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_texture_mapped/";
-	//std::string calibration_file = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/calibration_171026_pose3.json";
-	//custom_seg_dir_demo(input_dir, output_dir, calibration_file);
+	// texture demo sequence
+	std::string input_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/uvatlas_mapped";
+	std::string output_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_texture_mapped_refactor/";
+	std::string calibration_file = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/calibration_171026_pose3.json";
+	custom_seg_dir_demo(input_dir, output_dir, calibration_file);
 
 	//// single test using PCL's textureMeshwithMultipleCameras()
 	//pcl_texture_demo();
