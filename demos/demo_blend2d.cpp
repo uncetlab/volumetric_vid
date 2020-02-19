@@ -142,14 +142,14 @@ int main(int argc, char* argv[]) {
 	Eigen::Vector2f uv_pt2(100, 12);
 
 	Eigen::Matrix3f img_pts;	// starting points
-	img_pts <<	img_pt0.x(), img_pt1.x(), img_pt2.x(),
-				img_pt0.y(), img_pt1.y(), img_pt2.y(),
-				1, 1, 1;
+	img_pts << img_pt0.x(), img_pt1.x(), img_pt2.x(),
+		img_pt0.y(), img_pt1.y(), img_pt2.y(),
+		1, 1, 1;
 
 	Eigen::Matrix3f uv_pts;		// points after transformation is applied
-	uv_pts <<	uv_pt0.x(), uv_pt1.x(), uv_pt2.x(),
-				uv_pt0.y(), uv_pt1.y(), uv_pt2.y(),
-				1, 1, 1;
+	uv_pts << uv_pt0.x(), uv_pt1.x(), uv_pt2.x(),
+		uv_pt0.y(), uv_pt1.y(), uv_pt2.y(),
+		1, 1, 1;
 
 	Eigen::Matrix3f inv = img_pts.inverse().eval();
 	Eigen::Matrix3f transformation = uv_pts * inv;

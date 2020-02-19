@@ -1,4 +1,5 @@
 #include <vector>
+#include <string>
 #include <pcl/TextureMesh.h>
 #include <pcl/PolygonMesh.h>
 #include <pcl/common/projection_matrix.h>
@@ -17,8 +18,18 @@ namespace volcap {
 
 		/**
 		 * @brief loads all TextureMeshes (saved as .obj files) from a dir (assumes every file is a .obj file)
+		 *
+		 * @remark .obj file must only contain 1 material to work properly
+		 *
+		 * @param[in] dir_name
+		 * @param[out] meshes
+		 * @param[out] mesh_filenames
 		 */
-		void load_meshes_from_dir(const std::string dir_name, std::vector<pcl::TextureMeshPtr> &meshes, std::vector<std::string> &mesh_ids);
+		void load_meshes_from_dir(
+			const std::string dir_name,
+			std::vector<pcl::TextureMeshPtr> &meshes,
+			std::vector<std::string> &mesh_filenames  // std::vector<std::string> &mesh_ids
+		);
 
 		/* 
 		 * @brief loads all clouds in `dir_name` and stores them in `clouds`. assumes each file is a .ply point cloud
