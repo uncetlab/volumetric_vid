@@ -1,12 +1,12 @@
+#include <volcap/texture/texturing.h>
 #include <pcl/TextureMesh.h>
 #include <pcl/surface/texture_mapping.h>
 #include <blend2d.h>
 #include <Eigen/LU>
-#include "texturing.h"
 #include <assert.h>
 
 
-void Texturing::generateGradientTexture(const std::string &file_name, std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> &tex_coords) {
+void volcap::texture::Texturing::generateGradientTexture(const std::string &file_name, std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> &tex_coords) {
 	// create image for drawing on
 	BLImage img(480, 480, BL_FORMAT_PRGB32);
 	BLContext ctx(img);
@@ -53,7 +53,7 @@ void Texturing::generateGradientTexture(const std::string &file_name, std::vecto
 	img.writeToFile(file_name.c_str(), codec);
 }
 
-void Texturing::generateUVTextureFromImages(
+void volcap::texture::Texturing::generateUVTextureFromImages(
 	const std::string &file_name,
 	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &tex_coords,
 	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &img_coords,
@@ -61,7 +61,7 @@ void Texturing::generateUVTextureFromImages(
 ) {
 	//==> validate input
 	// ASSERT( img_coords.size() == tex_coords.size() == img_files.size() )
-	
+
 	//for (int i = 0; i < tex_coords.size(); i++) {
 	//	ASSERT(tex_coords[i].size() == img_coords[i].size())
 	//}
@@ -84,10 +84,10 @@ void Texturing::generateUVTextureFromImages(
 		BLResult err = texture.readFromFile(img_files[cam_idx].c_str());
 
 		// loop thru tris
-		for (int vertex_idx = 0; vertex_idx < tex_coords[cam_idx].size(); vertex_idx+=3) {
+		for (int vertex_idx = 0; vertex_idx < tex_coords[cam_idx].size(); vertex_idx += 3) {
 			Eigen::Vector2f uv_pt0(tex_coords[cam_idx][vertex_idx].x()* BITMAP_SIZE, (1.0 - tex_coords[cam_idx][vertex_idx].y())* BITMAP_SIZE);
-			Eigen::Vector2f uv_pt1(tex_coords[cam_idx][vertex_idx+1].x()* BITMAP_SIZE, (1.0 - tex_coords[cam_idx][vertex_idx+1].y())* BITMAP_SIZE);
-			Eigen::Vector2f uv_pt2(tex_coords[cam_idx][vertex_idx+2].x()* BITMAP_SIZE, (1.0 - tex_coords[cam_idx][vertex_idx+2].y())* BITMAP_SIZE);
+			Eigen::Vector2f uv_pt1(tex_coords[cam_idx][vertex_idx + 1].x()* BITMAP_SIZE, (1.0 - tex_coords[cam_idx][vertex_idx + 1].y())* BITMAP_SIZE);
+			Eigen::Vector2f uv_pt2(tex_coords[cam_idx][vertex_idx + 2].x()* BITMAP_SIZE, (1.0 - tex_coords[cam_idx][vertex_idx + 2].y())* BITMAP_SIZE);
 
 
 			//Eigen::Vector2f uv_pt1 = tex_coords[cam_idx][vertex_idx + 1] * BITMAP_SIZE;
@@ -104,17 +104,17 @@ void Texturing::generateUVTextureFromImages(
 			Eigen::Vector2f img_pt2 = img_coords[cam_idx][vertex_idx + 2];
 
 			Eigen::Matrix3f img_pts;	//!< starting points
-			img_pts <<	img_pt0.x() * 1920, img_pt1.x() * 1920, img_pt2.x() * 1920,
-						(1.0 - img_pt0.y()) * 1080, (1.0 - img_pt1.y()) * 1080, (1.0 - img_pt2.y()) * 1080,
-						1, 1, 1;
+			img_pts << img_pt0.x() * 1920, img_pt1.x() * 1920, img_pt2.x() * 1920,
+				(1.0 - img_pt0.y()) * 1080, (1.0 - img_pt1.y()) * 1080, (1.0 - img_pt2.y()) * 1080,
+				1, 1, 1;
 
 			Eigen::Matrix3f uv_pts;		//!< points after transformation is applied
-			uv_pts <<	uv_pt0.x(), uv_pt1.x(), uv_pt2.x(),
-						uv_pt0.y(), uv_pt1.y(), uv_pt2.y(),
-						1, 1, 1;
+			uv_pts << uv_pt0.x(), uv_pt1.x(), uv_pt2.x(),
+				uv_pt0.y(), uv_pt1.y(), uv_pt2.y(),
+				1, 1, 1;
 
 			Eigen::Matrix3f inv = img_pts.inverse().eval();
-			Eigen::Matrix3f transformation = uv_pts*inv;
+			Eigen::Matrix3f transformation = uv_pts * inv;
 
 			//printf("=====> transformation:\n");
 			//std::cout << transformation << "\n";
@@ -146,17 +146,17 @@ void Texturing::generateUVTextureFromImages(
 				uv_pt2.x(), uv_pt2.y()
 			);
 		}
-		
+
 	}
 
 	// write texture map to file
 	BLImageCodec codec;
 	codec.findByName("BMP");
 	img.writeToFile(file_name.c_str(), codec);
-	
+
 }
 
-void Texturing::segmentUVMeshByCamera(
+void volcap::texture::Texturing::segmentUVMeshByCamera(
 	pcl::TextureMesh &mesh,
 	pcl::texture_mapping::CameraVector cams,
 	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &tex_coords,
@@ -224,12 +224,12 @@ void Texturing::segmentUVMeshByCamera(
 	}
 }
 
-void Texturing::determineOccludedFaces(
-	const pcl::TextureMesh &mesh, 
-	const pcl::TextureMapping<pcl::PointXYZ>::Camera &cam, 
+void volcap::texture::Texturing::determineOccludedFaces(
+	const pcl::TextureMesh &mesh,
+	const pcl::TextureMapping<pcl::PointXYZ>::Camera &cam,
 	std::vector<bool> &visible_faces,
 	pcl::PointCloud<pcl::PointXY>::Ptr projections  //!< same size as mesh_cloud, indices correspond
-) {	
+) {
 	//==> transform cloud to camera space
 	pcl::PointCloud<pcl::PointXYZ>::Ptr mesh_cloud(new pcl::PointCloud<pcl::PointXYZ>);
 	pcl::PointCloud<pcl::PointXYZ>::Ptr camera_cloud(new pcl::PointCloud<pcl::PointXYZ>);
@@ -290,7 +290,7 @@ void Texturing::determineOccludedFaces(
 		if (kdtree.radiusSearch(center, radius, idxNeighbors, neighborsSquaredDistance) > 0) {
 
 			for (size_t i = 0; i < idxNeighbors.size(); ++i) {
-				int idx_neighbor = idxNeighbors[i]; 
+				int idx_neighbor = idxNeighbors[i];
 				pcl::PointXYZ neighbor = camera_cloud->points[idx_neighbor];
 
 				if (idx_neighbor == idx_pt0 || idx_neighbor == idx_pt1 || idx_neighbor == idx_pt2) {
@@ -317,5 +317,5 @@ void Texturing::determineOccludedFaces(
 			}
 		}
 	}
-	
+
 }

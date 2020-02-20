@@ -2,13 +2,14 @@
  * Shows example of Microsoft UVAtlas being used to create a UV mapping for a simple .obj cube
  * Outputs to .obj
  *
+ * NOTE: CMakeLists.txt ISN'T SET UP TO RUN THIS (just wanted to keep demo code for reference)
  */
 #include <UVAtlas.h>
 #include <DirectXMesh.h>
 #include <memory>
 #include <WaveFrontReader.h>
 #include <stdio.h>
-//#include <DirectXMath.h>
+ //#include <DirectXMath.h>
 #include <pcl/TextureMesh.h>
 #include <pcl/common/projection_matrix.h>
 //#include <pcl/impl/point_types.hpp>
@@ -62,7 +63,7 @@ int main(int argc, char** argv)
 		nullptr, nullptr,
 		nullptr,				// possible callback function
 		DirectX::UVATLAS_DEFAULT_CALLBACK_FREQUENCY,
-		DirectX::UVATLAS_DEFAULT, 
+		DirectX::UVATLAS_DEFAULT,
 		vb,  // [output][vector<UVAtlasVertex>] vertex buffer: stores tuple (old 3d pos?, corresponding 2d uv position)
 		ib,  // [output][vector<uint8_t>] index buffer: stores face information by storing the indicies of data in `vertex buffer`. every 3 is a tri?
 		nullptr,
@@ -98,7 +99,7 @@ int main(int argc, char** argv)
 	for (size_t j = 0; j < nTotalVerts; ++j) {
 		newVB[j].textureCoordinate = vb[j].uv;
 	}
-		
+
 	auto newIB = reinterpret_cast<const uint16_t*>(&ib.front());
 	// now we have our newVB / newIB! now we render with a fake texture to get our uv map
 
@@ -111,7 +112,7 @@ int main(int argc, char** argv)
 
 	// create PCL vertex buffer equivalent (contains duplicates currently)
 	pcl::PointCloud<pcl::PointNormal> xyz;
-	
+
 	for (int i = 0; i < nVerts; i++) {  // copy newVB to texture_mesh.cloud
 		WaveFrontReader<uint16_t>::Vertex wf_v = mesh->vertices[i];
 		pcl::PointNormal pcl_v;
@@ -132,7 +133,7 @@ int main(int argc, char** argv)
 	std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f> >
 		mesh_tex;  // indicies correspond to elements in texture_mesh.cloud? // should be same shape as index buffer?
 
-	for (int i = 0; i < ib.size() / 2; i+=3) {  // build each face  // ib.size() / 2
+	for (int i = 0; i < ib.size() / 2; i += 3) {  // build each face  // ib.size() / 2
 		if (i + 2 >= ib.size() / 2) {
 			printf("ERROR");
 			return 1;
@@ -155,7 +156,7 @@ int main(int argc, char** argv)
 		mesh_poly.push_back(v);
 
 		// create corresponding uv coords
-		
+
 		Eigen::Vector2f tex1;
 		Eigen::Vector2f tex2;
 		Eigen::Vector2f tex3;
@@ -201,5 +202,5 @@ int main(int argc, char** argv)
 	//	viewer->spinOnce(100);
 	//	//boost::this_thread::sleep(boost::posix_time::microseconds(100000));
 	//}
-	
+
 }

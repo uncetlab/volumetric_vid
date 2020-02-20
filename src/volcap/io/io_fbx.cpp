@@ -1,14 +1,16 @@
+#include <volcap/io/io_fbx.h>
 #include <pcl/TextureMesh.h>
-#include <pcl/io/obj_io.h>
 #include <pcl/conversions.h>
+#include <pcl/point_types.h>
 #include <fbxsdk.h>
+#include <boost/filesystem.hpp>
 
 #ifdef IOS_REF
-  #undef  IOS_REF
-  #define IOS_REF (*(pSdkManager->GetIOSettings()))
+#undef  IOS_REF
+#define IOS_REF (*(pSdkManager->GetIOSettings()))
 #endif
 
-bool InitializeSdkObjects(FbxManager*& pManager, FbxScene*& pScene)
+bool volcap::io::InitializeSdkObjects(FbxManager*& pManager, FbxScene*& pScene)
 {
 	//The first thing to do is to create the FBX Manager which is the object allocator for almost all the classes in the SDK
 	pManager = FbxManager::Create();
@@ -16,8 +18,7 @@ bool InitializeSdkObjects(FbxManager*& pManager, FbxScene*& pScene)
 	{
 		FBXSDK_printf("Error: Unable to create FBX Manager!\n");
 		exit(1);
-	}
-	else FBXSDK_printf("Autodesk FBX SDK version %s\n", pManager->GetVersion());
+	} else FBXSDK_printf("Autodesk FBX SDK version %s\n", pManager->GetVersion());
 
 	//Create an IOSettings object. This object holds all import/export settings.
 	FbxIOSettings* ios = FbxIOSettings::Create(pManager, IOSROOT);
@@ -34,7 +35,7 @@ bool InitializeSdkObjects(FbxManager*& pManager, FbxScene*& pScene)
 }
 
 // local version of create texture
-void CreateTexture(FbxFileTexture*& pTexture, FbxScene* pScene, std::string tex_file)
+void volcap::io::CreateTexture(FbxFileTexture*& pTexture, FbxScene* pScene, std::string tex_file)
 {
 	pTexture = FbxFileTexture::Create(pScene, "Diffuse Texture");
 
@@ -52,7 +53,7 @@ void CreateTexture(FbxFileTexture*& pTexture, FbxScene* pScene, std::string tex_
 }
 
 // local version of create material
-void CreateMaterial(FbxSurfacePhong*& pMaterial, FbxFileTexture* pTexture, FbxScene* pScene)
+void volcap::io::CreateMaterial(FbxSurfacePhong*& pMaterial, FbxFileTexture* pTexture, FbxScene* pScene)
 {
 	FbxString lMaterialName = "material";
 	FbxString lShadingName = "Phong";
@@ -75,7 +76,7 @@ void CreateMaterial(FbxSurfacePhong*& pMaterial, FbxFileTexture* pTexture, FbxSc
 }
 
 // to save a scene to a FBX file
-bool SaveScene(FbxManager* pSdkManager, FbxDocument* pScene, const char* pFilename, int pFileFormat, bool pEmbedMedia)
+bool volcap::io::SaveScene(FbxManager* pSdkManager, FbxDocument* pScene, const char* pFilename, int pFileFormat, bool pEmbedMedia)
 {
 	if (pSdkManager == NULL) return false;
 	if (pScene == NULL) return false;
@@ -139,12 +140,12 @@ bool SaveScene(FbxManager* pSdkManager, FbxDocument* pScene, const char* pFilena
 }
 
 // to save a scene to a FBX file. local version
-bool Export(const char* pFilename, int pFileFormat, FbxManager* pManager, FbxScene* pScene) {
+bool volcap::io::Export(const char* pFilename, int pFileFormat, FbxManager* pManager, FbxScene* pScene) {
 	return SaveScene(pManager, pScene, pFilename, pFileFormat, true); // true -> embed texture file
 }
 
 // add materials to a mesh. local version
-void AddMaterials(FbxMesh* pMesh, FbxSurfacePhong* pMaterial)
+void volcap::io::AddMaterials(FbxMesh* pMesh, FbxSurfacePhong* pMaterial)
 {
 	// Set material mapping.
 	FbxGeometryElementMaterial* lMaterialElement = pMesh->CreateElementMaterial();
@@ -158,8 +159,8 @@ void AddMaterials(FbxMesh* pMesh, FbxSurfacePhong* pMaterial)
 }
 
 // convert a pcl::TextureMesh to an FbxMesh, add to pScene
-FbxNode* createMesh(pcl::TextureMesh &mesh, FbxScene* pScene, char* pName, FbxSurfacePhong* pMaterial) {
-	
+FbxNode* volcap::io::createMesh(pcl::TextureMesh &mesh, FbxScene* pScene, char* pName, FbxSurfacePhong* pMaterial) {
+
 	FbxMesh* lMesh = FbxMesh::Create(pScene, pName);
 
 	//==> specify vertex positions and normals
@@ -220,7 +221,7 @@ FbxNode* createMesh(pcl::TextureMesh &mesh, FbxScene* pScene, char* pName, FbxSu
 
 		for (int i = 0; i < 3; i++) {
 			//==> set control points and their normals
-			lControlPoints[tri_idx*3 + i] = vertices[submesh[tri_idx].vertices[i]];
+			lControlPoints[tri_idx * 3 + i] = vertices[submesh[tri_idx].vertices[i]];
 			//lGeometryElementNormal->GetDirectArray().Add(normals[submesh[tri_idx].vertices[i]]);  // (TODO: for when we use mapping mode eByControlPoint)
 
 			//==> add a control point to the current polygon
@@ -261,11 +262,12 @@ FbxNode* createMesh(pcl::TextureMesh &mesh, FbxScene* pScene, char* pName, FbxSu
 	return lNode;
 }
 
-/* converts pcl::TextureMesh to fbx, exports to .fbx file
- * assumes the TextureMesh has 1 of each tex_polygons, tex_coordinates, tex_materials
- *
+/**
+ * @brief converts pcl::TextureMesh to fbx, exports to .fbx file
+ * @remark assumes the TextureMesh has 1 of each tex_polygons, tex_coordinates, tex_materials
  */
-bool fbxFromTextureMesh(pcl::TextureMesh &mesh, const std::string mesh_name, std::string output_full_path) {
+bool volcap::io::fbxFromTextureMesh(pcl::TextureMesh &mesh, std::string mesh_name, std::string output_full_path) {
+//bool volcap::io::fbxFromTextureMesh(pcl::TextureMesh &mesh, char* mesh_name, std::string output_full_path) {
 
 	//==> declare local fbx variables
 	FbxManager* lManager = NULL;
@@ -286,70 +288,20 @@ bool fbxFromTextureMesh(pcl::TextureMesh &mesh, const std::string mesh_name, std
 	CreateMaterial(lMaterial, lTexture, lScene);
 
 	//==> create a FbxNode for our mesh
-	FbxNode* lMesh = createMesh(mesh, lScene, "mesh_name", lMaterial);
+	char * writable = new char[mesh_name.size() + 1];
+	std::copy(mesh_name.begin(), mesh_name.end(), writable);
+	writable[mesh_name.size()] = '\0';
+
+	FbxNode* lMesh = createMesh(mesh, lScene, writable, lMaterial);
+	delete[] writable;
 
 	//==> add mesh to scene
 	lScene->GetRootNode()->AddChild(lMesh);
 
 	//==> export to .fbx
+	boost::filesystem::path out_path = output_full_path;
+	boost::filesystem::create_directory(out_path.parent_path());
 	Export(output_full_path.c_str(), -1, lManager, lScene);
 
 	return true;
-}
-
-/* loads all TextureMeshes (saved as .obj files) from a dir (assumes every file is a .obj file)
- * works with .obj files which only have 1 material
- *
- */
-void load_meshes_from_dir(const std::string dir_name, std::vector<pcl::TextureMeshPtr> &meshes, std::vector<std::string> &mesh_filenames) {
-	boost::filesystem::path input_dir(dir_name);
-
-	boost::filesystem::directory_iterator it{ input_dir };
-	int i = 0;
-	while (it != boost::filesystem::directory_iterator{}) {
-		// Get input / output paths
-		boost::filesystem::directory_entry entry = *it++;
-		boost::filesystem::path path = entry.path();
-		std::string filename = path.stem().string();  // .filename() includes extension, use .stem() instead
-
-		if (boost::filesystem::extension(path) != ".obj") {
-			printf("skipping file with extension: %s\n", boost::filesystem::extension(path).c_str());
-			continue;
-		}
-		printf("loading TextureMesh %i\n", i++);
-
-		std::string mesh_path = path.string();
-
-		pcl::TextureMeshPtr mesh(boost::make_shared<pcl::TextureMesh>());
-		pcl::io::loadOBJFile(mesh_path, *mesh);		// this is broken for TextureMeshes with multiple materials, 
-													// all texture coordinates get loaded into the first submesh 
-													// (any other submeshes get no texture coordinates)
-
-		//edit texture files to be full paths (necessary when creating textures)
-		mesh->tex_materials[0].tex_file = dir_name + "/" + mesh->tex_materials[0].tex_file;
-
-		meshes.push_back(mesh);
-		mesh_filenames.push_back(filename);
-	}
-}
-
-int main(int argc, char** argv) {
-
-	////==> single example
-	//pcl::TextureMesh tmesh;
-	//pcl::io::loadOBJFile("C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/ptcloud_hd00000380_normals_cleaned.obj", tmesh);
-	//fbxFromTextureMesh(tmesh);
-
-	//==> convert a dir of .obj files into .fbx
-	std::vector<pcl::TextureMeshPtr> meshes;
-	std::vector<std::string> mesh_filenames;
-	//std::string input_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient";
-	std::string input_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient/pngs";
-	load_meshes_from_dir(input_dir, meshes, mesh_filenames);
-
-	std::string output_dir = input_dir + "/fbx/";
-
-	for (int i = 0; i < meshes.size(); i++) {
-		fbxFromTextureMesh(*meshes[i], mesh_filenames[i], output_dir + mesh_filenames[i]);
-	}
 }

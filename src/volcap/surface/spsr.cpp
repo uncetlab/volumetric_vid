@@ -1,9 +1,9 @@
 #include <pcl/point_types.h>
 #include <pcl/surface/poisson.h>
 #include <pcl/surface/vtk_smoothing/vtk_mesh_quadric_decimation.h>
-#include "SPSR.h"
+#include "spsr.h"
 
-void compute_mesh(const pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr &input, pcl::PolygonMesh &output, int depth, int solver_divide, int iso_divide, float point_weight) {
+void volcap::surface::compute_mesh(const pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr &input, pcl::PolygonMesh &output, int depth, int solver_divide, int iso_divide, float point_weight) {
 	pcl::Poisson<pcl::PointXYZRGBNormal> poisson;
 	poisson.setDepth(depth);
 	poisson.setSolverDivide(solver_divide);
@@ -16,7 +16,7 @@ void compute_mesh(const pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr &input, pcl
 
 }
 
-void compute_mesh(const pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr &input, pcl::PointCloud<pcl::PointXYZRGBNormal> &out_points, std::vector<pcl::Vertices> &out_polygons,
+void volcap::surface::compute_mesh(const pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr &input, pcl::PointCloud<pcl::PointXYZRGBNormal> &out_points, std::vector<pcl::Vertices> &out_polygons,
 	int depth, int solver_divide, int iso_divide, float point_weight) {
 	pcl::Poisson<pcl::PointXYZRGBNormal> poisson;
 	poisson.setDepth(depth);
@@ -27,7 +27,7 @@ void compute_mesh(const pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr &input, pcl
 	poisson.reconstruct(out_points, out_polygons);
 }
 
-void decimate_mesh(const pcl::PolygonMesh::Ptr &input_mesh, float p, pcl::PolygonMesh &output_mesh) {
+void volcap::surface::decimate_mesh(const pcl::PolygonMesh::Ptr &input_mesh, float p, pcl::PolygonMesh &output_mesh) {
 	pcl::MeshQuadricDecimationVTK decimator;
 	decimator.setTargetReductionFactor(p);
 	decimator.setInputMesh(input_mesh);

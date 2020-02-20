@@ -1,8 +1,8 @@
 #include <pcl/point_types.h>
 #include <pcl/surface/mls.h>
 #include <pcl/io/ply_io.h>
-#include "SPSR.h"
-//#include "../SPSR/SPSR.h"
+#include <volcap/surface/spsr.h>
+#include <boost/filesystem.hpp>
 
 //const int MIN_NEIGHBORS = 0; // required number of nearest neighbors
 //const float MIN_RADIUS = 5; // minimum radius of sphere
@@ -43,15 +43,15 @@ int main(int argc, char** argv)
 
 		// compute spsr
 		pcl::PolygonMesh::Ptr psr_mesh(boost::make_shared<pcl::PolygonMesh>());
-		compute_mesh(xyz_cloud_smoothed, *psr_mesh);
+		volcap::surface::compute_mesh(xyz_cloud_smoothed, *psr_mesh);
 		//pcl::PointCloud<pcl::PointXYZRGBNormal> points;
 		//std::vector<pcl::Vertices> polygons;
 		//compute_mesh(xyz_cloud_smoothed, points, polygons);
 
 		// decimate mesh
 		pcl::PolygonMesh decimated_mesh;
-		float percent_faces_removed = 0.9;
-		decimate_mesh(psr_mesh, percent_faces_removed, decimated_mesh);
+		float percent_faces_removed = 0.8;
+		volcap::surface::decimate_mesh(psr_mesh, percent_faces_removed, decimated_mesh);
 
 		// Write output to ply
 		std::string decimated_folder_str = "decimated_";
