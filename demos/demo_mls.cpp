@@ -2,6 +2,7 @@
 #include <pcl/surface/mls.h>
 #include <pcl/io/ply_io.h>
 #include <volcap/surface/spsr.h>
+#include <boost/filesystem.hpp>
 
 //const int MIN_NEIGHBORS = 0; // required number of nearest neighbors
 //const float MIN_RADIUS = 5; // minimum radius of sphere
