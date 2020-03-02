@@ -1,0 +1,3 @@
+[submodule "external/pcl"]
+	path = external/pcl
+	url = https://github.com/PointCloudLibrary/pcl.git
