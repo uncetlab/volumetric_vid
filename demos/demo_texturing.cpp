@@ -153,6 +153,7 @@ void custom_seg_demo() {
 // custom segmentation + texturing demo for a sequence of meshes
 void custom_seg_dir_demo(std::string input_dir, std::string output_dir, std::string calibration_file) {
 	volcap::texture::Texturing t;
+	boost::filesystem::create_directory(output_dir);
 
 	//==> load uv-mapped texture meshes
 	std::vector<pcl::TextureMeshPtr> meshes;
@@ -181,7 +182,7 @@ void custom_seg_dir_demo(std::string input_dir, std::string output_dir, std::str
 			std::string tex_filename = tex_file_path.filename().string();
 			std::string cam_name = tex_filename.substr(0, 5);  // assume cam name is first 5 chars of texture_file
 			char file_name[19];  // file name lengths are all 18, use 19 to prevent mem error
-			sprintf(file_name, "%s_%08i.jpg", cam_name.c_str(), seq_start_frame++);
+			sprintf(file_name, "%s_%08i.jpg", cam_name.c_str(), seq_start_frame);
 			std::string file_name_str(file_name);
 
 			std::string parent_path = tex_file_path.parent_path().string();
@@ -190,14 +191,16 @@ void custom_seg_dir_demo(std::string input_dir, std::string output_dir, std::str
 		}
 
 		//==> generate texture map using UVAtlas' uv-map, greedy custom segmentation
-		std::string texture_file_name = output_dir + mesh_ids[idx_mesh] + ".bmp";
-		t.generateUVTextureFromImages(texture_file_name, tex_coords, img_coords, img_files);
+		std::string texture_file = mesh_ids[idx_mesh] + ".bmp";
+		std::string texture_file_full = output_dir + "/" + texture_file;
+		t.generateUVTextureFromImages(texture_file_full, tex_coords, img_coords, img_files);
 
 		//==> update TextureMesh material to use new texture file
-		mesh.tex_materials[0].tex_file = texture_file_name;  // saving full path in texture material
+		//mesh.tex_materials[0].tex_file = texture_file_full;  // saving full path in texture material
+		mesh.tex_materials[0].tex_file = texture_file;  // saving relative path in texture material (preferred if it works)
 
 		//==> resave TextureMesh as .obj
-		std::string obj_path = output_dir + mesh_ids[idx_mesh] + ".obj";  // path must be declared with forward slashes to work correctly
+		std::string obj_path = output_dir + "/" + mesh_ids[idx_mesh] + ".obj";  // path must be declared with forward slashes to work correctly
 		pcl::io::saveOBJFile(obj_path, mesh);
 	}
 }
@@ -483,11 +486,11 @@ int main(int argc, char** argv) {
 	//// single test on test_panoptic.obj
 	//custom_seg_demo();
 
-	// texture demo sequence
-	std::string input_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/uvatlas_mapped";
-	std::string output_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_texture_mapped_refactor/";
-	std::string calibration_file = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/calibration_171026_pose3.json";
-	custom_seg_dir_demo(input_dir, output_dir, calibration_file);
+	// texturing onto UVAtlas' uv-map
+	boost::filesystem::path input_dir("D:/mhudnell/repos/volumetric_vid/demo_data/kinoptic_ptclouds/04_mesh_uv-mapped");
+	boost::filesystem::path out_dir = input_dir.parent_path() / "05_mesh_textured";
+	boost::filesystem::path calibration_file = input_dir.parent_path().parent_path() / "calibration_171026_pose3.json";
+	custom_seg_dir_demo(input_dir.string(), out_dir.string(), calibration_file.string());
 
 	//// single test using PCL's textureMeshwithMultipleCameras()
 	//pcl_texture_demo();

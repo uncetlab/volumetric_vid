@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
 
 	// Read an image from file.
 	BLImage texture;
-	BLResult err = texture.readFromFile("C:/Users/maxhu/Desktop/uvatlas_example/lenna_test_image.png");
+	BLResult err = texture.readFromFile("D:/mhudnell/repos/volumetric_vid/demo_data/lenna_test_image.png");
 
 	// Basic error handling is necessary as we need some IO.
 	if (err) {
@@ -182,7 +182,7 @@ int main(int argc, char* argv[]) {
 
 	BLImageCodec codec;
 	codec.findByName("BMP");
-	img.writeToFile("C:/Users/maxhu/Desktop/uvatlas_example/blend2d_tests/tri_transform_test.bmp", codec);
+	img.writeToFile("D:/mhudnell/repos/volumetric_vid/demo_data/tri_transform_test.bmp", codec);
 
 	return 0;
 }

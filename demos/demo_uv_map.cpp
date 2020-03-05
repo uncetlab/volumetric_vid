@@ -19,31 +19,37 @@
  */
 int main(int argc, char** argv)
 {
+	boost::filesystem::path input_dir("D:/mhudnell/repos/volumetric_vid/demo_data/kinoptic_ptclouds/03_mesh_decimated/decimated_0.800000");
+	boost::filesystem::path out_dir = input_dir.parent_path().parent_path() / "04_mesh_uv-mapped";
+	boost::filesystem::create_directory(out_dir);
+
 	std::vector<pcl::PolygonMeshPtr> p_meshes;
-	std::vector<std::string> mesh_ids;
-	std::string dir_name = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/cloud_mls/spsr_decimated_0.900000";
-
-	volcap::io::load_meshes_from_dir(dir_name, p_meshes, mesh_ids);
-
-	//std::string out_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient/";
-	//std::string out_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient/pngs/";
-	std::string out_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/uvatlas_mapped/";
+	std::vector<std::string> mesh_paths;
+	volcap::io::load_meshes_from_dir(input_dir.string(), p_meshes, mesh_paths);
 
 	//for (int idx_mesh = 0; idx_mesh < p_meshes.size(); idx_mesh++) {
-	for (int idx_mesh = 0; idx_mesh < 2; idx_mesh++) {
+	for (int idx_mesh = 0; idx_mesh < 1; idx_mesh++) {
 
 		pcl::PolygonMesh pmesh = *p_meshes[idx_mesh];
-		pcl::TextureMesh tmesh;
+		pcl::TextureMesh tmesh;  // use TextureMesh so we can store texture coordinates
 		volcap::texture::generateUVMapping(pmesh, tmesh);
 
-		boost::filesystem::path file_path(mesh_ids[idx_mesh]);
+		////ttestst
+		//pcl::TexMaterial mesh_material;
+		//mesh_material.tex_name = "material_0";
+		//tmesh.tex_materials.push_back(mesh_material);
+
+		boost::filesystem::path file_path(mesh_paths[idx_mesh]);
 		std::string file_name = file_path.stem().string();
 
 		//==> save to obj
-		std::string obj_path = out_dir + file_name + ".obj";  // path must be declared with forward slashes to work correctly
-		pcl::io::saveOBJFile(obj_path, tmesh);
+		boost::filesystem::path out_file = out_dir / (file_name + ".obj");
+		//out_file.make_preferred();
+		std::string out_file_str = out_file.string();
+		std::replace(out_file_str.begin(), out_file_str.end(), '\\', '/');
+		pcl::io::saveOBJFile(out_file_str, tmesh);  // does not detect backslashes properly when saving .mtl
 
-		printf("saved obj to: %s\n", obj_path.c_str());
+		printf("saved obj to: %s\n", out_file_str.c_str());
 	}
 
 }

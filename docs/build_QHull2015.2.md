@@ -4,7 +4,8 @@ Building QHull 2015.2 with Visual Studio
 Download
 --------
 1. Download QHull 2015.2 for Windows(qhull-2015.2.zip)and unzip the file (C:\qhull-2015.2)  
-   <http://www.qhull.org/download/>  
+   <http://www.qhull.org/download/> 
+   <https://github.com/qhull/qhull/releases/tag/2015.2>
 
 
 CMake  

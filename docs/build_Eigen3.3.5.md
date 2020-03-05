@@ -4,7 +4,7 @@ Building Eigen 3.3.5 with Visual Studio
 Download
 --------
 1. Download Eigen 3.3.5(eigen-eigen-b3f3d4950030.zip) and unzip the file. (C:\eigen-eigen-b3f3d4950030)  
-   <http://eigen.tuxfamily.org/>  
+   <http://eigen.tuxfamily.org/index.php?title=News:Eigen_3.3.5_released!>  
    <https://bitbucket.org/eigen/eigen/downloads/>  
 
 

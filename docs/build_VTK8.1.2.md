@@ -5,7 +5,7 @@ Download
 --------
 1. Download VTK 8.1.2 (VTK-8.1.2.zip) and unzip the file (C:\VTK-8.1.2)
   <http://www.vtk.org/VTK/resources/software.html#latestcand>  
-  <https://github.com/Kitware/VTK/tree/v8.1.2>  
+  <https://github.com/Kitware/VTK/releases/tag/v8.1.2>
 　
 
 CMake
