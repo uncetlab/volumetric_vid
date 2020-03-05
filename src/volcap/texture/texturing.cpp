@@ -82,6 +82,10 @@ void volcap::texture::Texturing::generateUVTextureFromImages(
 		// get texture
 		BLImage texture;
 		BLResult err = texture.readFromFile(img_files[cam_idx].c_str());
+		if (err) {
+			printf("Failed to load a texture (err=%u): %s\n", err, img_files[cam_idx].c_str());
+			return;
+		}
 
 		// loop thru tris
 		for (int vertex_idx = 0; vertex_idx < tex_coords[cam_idx].size(); vertex_idx += 3) {

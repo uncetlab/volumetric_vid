@@ -13,8 +13,16 @@ namespace volcap {
 
 		/*
 		 * @brief loads all PolygonMeshes (saved as .ply files) from a dir (assumes every file is a .ply file)
+		 *
+		 * @param[in] dir_name
+		 * @param[out] meshes
+		 * @param[out] mesh_paths	mesh full paths
 		 */
-		void load_meshes_from_dir(const std::string dir_name, std::vector<pcl::PolygonMeshPtr> &meshes, std::vector<std::string> &mesh_ids);
+		void load_meshes_from_dir(
+			const std::string dir_name,
+			std::vector<pcl::PolygonMeshPtr> &meshes,
+			std::vector<std::string> &mesh_paths
+		);
 
 		/**
 		 * @brief loads all TextureMeshes (saved as .obj files) from a dir (assumes every file is a .obj file)
@@ -23,12 +31,12 @@ namespace volcap {
 		 *
 		 * @param[in] dir_name
 		 * @param[out] meshes
-		 * @param[out] mesh_filenames
+		 * @param[out] mesh_filenames	mesh file names (without extensions)
 		 */
 		void load_meshes_from_dir(
 			const std::string dir_name,
 			std::vector<pcl::TextureMeshPtr> &meshes,
-			std::vector<std::string> &mesh_filenames  // std::vector<std::string> &mesh_ids
+			std::vector<std::string> &mesh_filenames
 		);
 
 		/* 
