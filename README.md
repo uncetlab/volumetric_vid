@@ -7,11 +7,13 @@
       * helpful when debugging
     * note: if you want to be able to make changes to PCL source, refer to sec3 on building PCL from source
   * UVAtlas
-    * `git clone git@github.com:microsoft/UVAtlas.git`
+    * in `volumetric_vid/external`:
+    * `git clone --depth=1 https://github.com/microsoft/UVAtlas.git`
     * open `UVAtlas_2017_Win10.sln` in Visual Studio 2017
     * `UVAtlas_2017_Win10`>Build (in Release x64 / Debug x64)
   * DirectXMesh
-    * `git clone `
+    * in `volumetric_vid/external`:
+    * `git clone --depth=1 https://github.com/microsoft/DirectXMesh.git`
     * open `DirectXMesh_Desktop_2017_Win10.sln` in Visual Studio 2017
     * `DirectXMesh`>Build (in Release x64 / Debug x64)
   * Blend2D
@@ -22,12 +24,14 @@
       mkdir blend2d/build
       cd blend2d/build
       cmake -DBLEND2D_TEST=TRUE -G "Visual Studio 15 2017 Win64" ..
-      cmake -- build . --config Debug
-      cmake -- build . --config Release
+      cmake --build . --config Debug
+      cmake --build . --config Release
       ```
   * FBX SDK 2020.1
     * download: https://www.autodesk.com/developer-network/platform-technologies/fbx-sdk-2020-0 [VS 2017]
-    * 
+    * install to default location `C:\Program Files`
+  * USD SDK
+    * todo
 
 ### Building doxygen documentation
   * You can generate html and latex documentation (requires installing [doxygen](http://www.doxygen.nl/download.html#srcbin)): 
