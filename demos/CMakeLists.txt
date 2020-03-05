@@ -5,14 +5,12 @@ project(demos)
 # specify the c++ standard
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-message("CONFIGURATION=${CONFIGURATION}")
 
 ################################################################################################
 # Finding dependencies
 ################################################################################################
 
-# load PCL for all targets
-# find and loads settings from PCL
+# PCL
 # sets:
 #   - PCL_FOUND, 
 #   - PCL_INCLUDE_DIRS (dirs for PCL + 3rd party includes)
@@ -28,26 +26,26 @@ link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 # UVAtlas
-find_path(UVATLAS_INCLUDE_DIR UVAtlas.h HINTS "D:/mhudnell/repos/microsoft/UVAtlas/UVAtlas/inc" NO_DEFAULT_PATH)
-find_library(UVATLAS_LIBRARY_DEBUG UVAtlas HINTS "D:/mhudnell/repos/microsoft/UVAtlas/UVAtlas/Bin/Desktop_2017_Win10/x64/Debug" NO_DEFAULT_PATH)
-find_library(UVATLAS_LIBRARY_RELEASE UVAtlas HINTS "D:/mhudnell/repos/microsoft/UVAtlas/UVAtlas/Bin/Desktop_2017_Win10/x64/Release" NO_DEFAULT_PATH)
+find_path(UVATLAS_INCLUDE_DIR UVAtlas.h HINTS "${CMAKE_SOURCE_DIR}/external/UVAtlas/UVAtlas/inc" NO_DEFAULT_PATH)
+find_library(UVATLAS_LIBRARY_DEBUG UVAtlas HINTS "${CMAKE_SOURCE_DIR}/external/UVAtlas/UVAtlas/Bin/Desktop_2017_Win10/x64/Debug" NO_DEFAULT_PATH)
+find_library(UVATLAS_LIBRARY_RELEASE UVAtlas HINTS "${CMAKE_SOURCE_DIR}/external/UVAtlas/UVAtlas/Bin/Desktop_2017_Win10/x64/Release" NO_DEFAULT_PATH)
 message("UVATLAS_INCLUDE_DIR=${UVATLAS_INCLUDE_DIR}")
 message("UVATLAS_LIBRARY_DEBUG=${UVATLAS_LIBRARY_DEBUG}")
 message("UVATLAS_LIBRARY_RELEASE=${UVATLAS_LIBRARY_RELEASE}")
 
 # DirectXMesh
-find_path(DIRECTXMESH_INCLUDE_DIR DirectXMesh.h HINTS "D:/mhudnell/repos/microsoft/DirectXMesh/DirectXMesh" NO_DEFAULT_PATH)
-find_path(WAVEFRONTREADER_INCLUDE_DIR WaveFrontReader.h HINTS "D:/mhudnell/repos/microsoft/DirectXMesh/Utilities" NO_DEFAULT_PATH)
-find_library(DIRECTXMESH_LIBRARY_DEBUG DirectXMesh HINTS "D:/mhudnell/repos/microsoft/DirectXMesh/DirectXMesh/Bin/Desktop_2017_Win10/x64/Debug" NO_DEFAULT_PATH)
-find_library(DIRECTXMESH_LIBRARY_RELEASE DirectXMesh HINTS "D:/mhudnell/repos/microsoft/DirectXMesh/DirectXMesh/Bin/Desktop_2017_Win10/x64/Release" NO_DEFAULT_PATH)
+find_path(DIRECTXMESH_INCLUDE_DIR DirectXMesh.h HINTS "${CMAKE_SOURCE_DIR}/external/DirectXMesh/DirectXMesh" NO_DEFAULT_PATH)
+find_path(WAVEFRONTREADER_INCLUDE_DIR WaveFrontReader.h HINTS "${CMAKE_SOURCE_DIR}/external/DirectXMesh/Utilities" NO_DEFAULT_PATH)
+find_library(DIRECTXMESH_LIBRARY_DEBUG DirectXMesh HINTS "${CMAKE_SOURCE_DIR}/external/DirectXMesh/DirectXMesh/Bin/Desktop_2017_Win10/x64/Debug" NO_DEFAULT_PATH)
+find_library(DIRECTXMESH_LIBRARY_RELEASE DirectXMesh HINTS "${CMAKE_SOURCE_DIR}/external/DirectXMesh/DirectXMesh/Bin/Desktop_2017_Win10/x64/Release" NO_DEFAULT_PATH)
 message("DIRECTXMESH_INCLUDE_DIR=${DIRECTXMESH_INCLUDE_DIR}")
 message("DIRECTXMESH_LIBRARY_DEBUG=${DIRECTXMESH_LIBRARY_DEBUG}")
 message("DIRECTXMESH_LIBRARY_RELEASE=${DIRECTXMESH_LIBRARY_RELEASE}")
 
 # Blend2D
-find_path(BLEND2D_INCLUDE_DIR blend2d.h HINTS "D:/mhudnell/repos/volumetric_vid/external/blend2d/src" NO_DEFAULT_PATH)
-find_library(BLEND2D_LIBRARY_DEBUG blend2d HINTS "D:/mhudnell/repos/volumetric_vid/external/blend2d/build/Debug" NO_DEFAULT_PATH)
-find_library(BLEND2D_LIBRARY_RELEASE blend2d HINTS "D:/mhudnell/repos/volumetric_vid/external/blend2d/build/Release" NO_DEFAULT_PATH)
+find_path(BLEND2D_INCLUDE_DIR blend2d.h HINTS "${CMAKE_SOURCE_DIR}/external/blend2d/src" NO_DEFAULT_PATH)
+find_library(BLEND2D_LIBRARY_DEBUG blend2d HINTS "${CMAKE_SOURCE_DIR}/external/blend2d/build/Debug" NO_DEFAULT_PATH)
+find_library(BLEND2D_LIBRARY_RELEASE blend2d HINTS "${CMAKE_SOURCE_DIR}/external/blend2d/build/Release" NO_DEFAULT_PATH)
 message("BLEND2D_INCLUDE_DIR=${BLEND2D_INCLUDE_DIR}")
 message("BLEND2D_LIBRARY_DEBUG=${BLEND2D_LIBRARY_DEBUG}")
 message("BLEND2D_LIBRARY_RELEASE=${BLEND2D_LIBRARY_RELEASE}")
@@ -126,8 +124,14 @@ target_link_libraries(DemoVisualizer ${PCL_LIBRARIES})
 #### DemoFbx
 target_include_directories(DemoFbx PRIVATE ${FBXSDK_INCLUDE_PATH})
 target_link_libraries(DemoFbx ${PCL_LIBRARIES})
-#target_link_libraries(DemoFbx ${FBXSDK_LIBRARIES_DEBUG})
-target_link_libraries(DemoFbx ${FBXSDK_LIBRARIES_RELEASE})
+target_link_libraries(
+	DemoFbx
+	debug ${FBXSDK_LIBRARIES_DEBUG}
+	optimized ${FBXSDK_LIBRARIES_RELEASE}
+)
+
+#### DemoUSD
+
 
 ##### pcl_visualizer_demo
 #target_link_libraries(pcl_visualizer_demo ${PCL_LIBRARIES})

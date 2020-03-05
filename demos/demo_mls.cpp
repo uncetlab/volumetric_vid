@@ -4,16 +4,15 @@
 #include <volcap/surface/spsr.h>
 #include <boost/filesystem.hpp>
 
-//const int MIN_NEIGHBORS = 0; // required number of nearest neighbors
-//const float MIN_RADIUS = 5; // minimum radius of sphere
+// get the project directory from preprocessor set in the top-level CMakeLists.txt
+const std::string PROJECT_DIR = _PROJECT_DIR;
 
 int main(int argc, char** argv)
 {
 	// loop through clean point clouds
-	//boost::filesystem::path input_dir("C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/normals_cleaned");
-	boost::filesystem::path input_dir("D:/mhudnell/repos/volumetric_vid/demo_data/kinoptic_ptclouds");
-	boost::filesystem::path out_dir = input_dir / "01_cloud_mls";
-	boost::filesystem::create_directory(out_dir);
+	boost::filesystem::path input_dir(PROJECT_DIR + "/demo_data/kinoptic_ptclouds");
+	boost::filesystem::path out_dir(PROJECT_DIR + "/demos/demo_output/01_cloud_mls");
+	boost::filesystem::create_directories(out_dir);
 
 	boost::filesystem::directory_iterator it{ input_dir };
 	while (it != boost::filesystem::directory_iterator{}) {

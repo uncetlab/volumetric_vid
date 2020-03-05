@@ -3,6 +3,10 @@
 #include <volcap/io/io_fbx.h>
 #include <pcl/io/obj_io.h>
 #include <pcl/TextureMesh.h>
+#include <boost/filesystem.hpp>
+
+// get the project directory from preprocessor set in the top-level CMakeLists.txt
+const std::string PROJECT_DIR = _PROJECT_DIR;
 
 int main(int argc, char** argv) {
 
@@ -12,16 +16,15 @@ int main(int argc, char** argv) {
 	//volcap::io::fbxFromTextureMesh(tmesh, "mesh_name", "C:/Users/maxhu/Desktop/uvatlas_example/fbx_sdk/ptcloud_hd00000380_normals_cleaned.fbx");
 
 	//==> convert a dir of .obj files into .fbx
+	std::string input_dir = PROJECT_DIR + "/demos/demo_output/05_mesh_textured";
+	std::string output_dir = PROJECT_DIR + "/demos/demo_output/06_mesh_fbx";
+	boost::filesystem::create_directories(output_dir);
+
 	std::vector<pcl::TextureMeshPtr> meshes;
 	std::vector<std::string> mesh_filenames;
-	//std::string input_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient";
-	//std::string input_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_gradient/pngs";
-	std::string input_dir = "C:/Users/maxhu/etlab/volumetric_capture/panoptic-toolbox/171026_pose3/kinoptic_ptclouds/textured_mesh/uvatlas_texture_mapped";
 	volcap::io::load_meshes_from_dir(input_dir, meshes, mesh_filenames);
 
-	std::string output_dir = input_dir + "/fbx/";
-
 	for (int i = 0; i < meshes.size(); i++) {
-		volcap::io::fbxFromTextureMesh(*meshes[i], mesh_filenames[i], output_dir + mesh_filenames[i]);
+		volcap::io::fbxFromTextureMesh(*meshes[i], mesh_filenames[i], output_dir + "/" + mesh_filenames[i]);
 	}
 }

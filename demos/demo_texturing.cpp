@@ -10,6 +10,8 @@
 #include <volcap/io/io_cam.h>
 #include <volcap/texture/texturing.h>
 
+// get the project directory from preprocessor set in the top-level CMakeLists.txt
+const std::string PROJECT_DIR = _PROJECT_DIR;
 
 //! Display a 3D representation showing the cloud and a list of camera with their 6DOf poses
 void showCameras(pcl::texture_mapping::CameraVector cams, pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud)
@@ -487,9 +489,9 @@ int main(int argc, char** argv) {
 	//custom_seg_demo();
 
 	// texturing onto UVAtlas' uv-map
-	boost::filesystem::path input_dir("D:/mhudnell/repos/volumetric_vid/demo_data/kinoptic_ptclouds/04_mesh_uv-mapped");
-	boost::filesystem::path out_dir = input_dir.parent_path() / "05_mesh_textured";
-	boost::filesystem::path calibration_file = input_dir.parent_path().parent_path() / "calibration_171026_pose3.json";
+	boost::filesystem::path input_dir(PROJECT_DIR + "/demos/demo_output/04_mesh_uv-mapped");
+	boost::filesystem::path out_dir(PROJECT_DIR + "/demos/demo_output/05_mesh_textured");
+	boost::filesystem::path calibration_file(PROJECT_DIR + "/demo_data/calibration_171026_pose3.json");
 	custom_seg_dir_demo(input_dir.string(), out_dir.string(), calibration_file.string());
 
 	//// single test using PCL's textureMeshwithMultipleCameras()

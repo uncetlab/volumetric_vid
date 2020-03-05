@@ -6,15 +6,17 @@
 #include <iostream>
 #include <volcap/surface/spsr.h>
 
+// get the project directory from preprocessor set in the top-level CMakeLists.txt
+const std::string PROJECT_DIR = _PROJECT_DIR;
 
 // Performs SPSR on a short sequence of (.ply) point clouds
 int main(int argc, char** argv)
 {
-	boost::filesystem::path input_dir("D:/mhudnell/repos/volumetric_vid/demo_data/kinoptic_ptclouds/01_cloud_mls");
-	boost::filesystem::path output_dir_spsr = input_dir.parent_path() / "02_mesh_spsr";
-	boost::filesystem::path output_dir_decimated = input_dir.parent_path() / "03_mesh_decimated";
-	boost::filesystem::create_directory(output_dir_spsr);
-	boost::filesystem::create_directory(output_dir_decimated);
+	boost::filesystem::path input_dir(PROJECT_DIR + "/demos/demo_output/01_cloud_mls");
+	boost::filesystem::path output_dir_spsr(PROJECT_DIR + "/demos/demo_output/02_mesh_spsr");
+	boost::filesystem::path output_dir_decimated(PROJECT_DIR + "/demos/demo_output/03_mesh_decimated");
+	boost::filesystem::create_directories(output_dir_spsr);
+	boost::filesystem::create_directories(output_dir_decimated);
 	
 	// loop through clean point clouds
 	boost::filesystem::directory_iterator it{ input_dir };

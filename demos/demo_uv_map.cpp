@@ -3,6 +3,8 @@
 #include <boost/filesystem.hpp>
 #include <pcl/io/obj_io.h>
 
+// get the project directory from preprocessor set in the top-level CMakeLists.txt
+const std::string PROJECT_DIR = _PROJECT_DIR;
 
 //void gradient_demo() {
 //	// generating texture based on coords loaded from .obj (so we dont have to run UVAtlas again)
@@ -19,16 +21,16 @@
  */
 int main(int argc, char** argv)
 {
-	boost::filesystem::path input_dir("D:/mhudnell/repos/volumetric_vid/demo_data/kinoptic_ptclouds/03_mesh_decimated/decimated_0.800000");
-	boost::filesystem::path out_dir = input_dir.parent_path().parent_path() / "04_mesh_uv-mapped";
+	boost::filesystem::path input_dir(PROJECT_DIR + "/demos/demo_output/03_mesh_decimated/decimated_0.800000");
+	boost::filesystem::path out_dir(PROJECT_DIR + "/demos/demo_output/04_mesh_uv-mapped");
 	boost::filesystem::create_directory(out_dir);
 
 	std::vector<pcl::PolygonMeshPtr> p_meshes;
 	std::vector<std::string> mesh_paths;
 	volcap::io::load_meshes_from_dir(input_dir.string(), p_meshes, mesh_paths);
 
-	//for (int idx_mesh = 0; idx_mesh < p_meshes.size(); idx_mesh++) {
-	for (int idx_mesh = 0; idx_mesh < 1; idx_mesh++) {
+	for (int idx_mesh = 0; idx_mesh < p_meshes.size(); idx_mesh++) {
+	//for (int idx_mesh = 0; idx_mesh < 1; idx_mesh++) {
 
 		pcl::PolygonMesh pmesh = *p_meshes[idx_mesh];
 		pcl::TextureMesh tmesh;  // use TextureMesh so we can store texture coordinates

@@ -1,6 +1,9 @@
 #include <blend2d.h>
 #include <Eigen/Dense>
 
+// get the project directory from preprocessor set in the top-level CMakeLists.txt
+const std::string PROJECT_DIR = _PROJECT_DIR;
+
 // example from blend2d getting started
 //int main(int argc, char* argv[]) {
 //	BLImage img(480, 480, BL_FORMAT_PRGB32);
@@ -122,8 +125,9 @@ int main(int argc, char* argv[]) {
 	ctx.fillAll();
 
 	// Read an image from file.
+	std::string tex_file = PROJECT_DIR + "/demo_data/lenna_test_image.png";
 	BLImage texture;
-	BLResult err = texture.readFromFile("D:/mhudnell/repos/volumetric_vid/demo_data/lenna_test_image.png");
+	BLResult err = texture.readFromFile(tex_file.c_str());
 
 	// Basic error handling is necessary as we need some IO.
 	if (err) {
@@ -182,7 +186,8 @@ int main(int argc, char* argv[]) {
 
 	BLImageCodec codec;
 	codec.findByName("BMP");
-	img.writeToFile("D:/mhudnell/repos/volumetric_vid/demo_data/tri_transform_test.bmp", codec);
+	std::string out_file = PROJECT_DIR + "/demos/demo_output/tri_transform_test.bmp";
+	img.writeToFile(out_file.c_str(), codec);
 
 	return 0;
 }
