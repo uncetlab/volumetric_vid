@@ -1,3 +1,4 @@
 .vs/
 docs/doxygen/html
 docs/doxygen/latex
+build/
