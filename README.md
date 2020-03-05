@@ -16,7 +16,7 @@
     * `DirectXMesh`>Build (in Release x64 / Debug x64)
   * Blend2D
     * in `volumetric_vid/external`:
-      ```
+      ```bash
       git clone --depth=1 https://github.com/asmjit/asmjit
       git clone --depth=1 https://github.com/blend2d/blend2d
       mkdir blend2d/build
@@ -30,13 +30,16 @@
     * 
 
 ### Building doxygen documentation
-  * You can generate html and latex documentation (requires installing doxygen): 
+  * You can generate html and latex documentation (requires installing [doxygen](http://www.doxygen.nl/download.html#srcbin)): 
     * via gui:
       1. Open doxygen gui `doxywizard.exe`
       2. "Specify the working dir from which doxygen will run" (folder with Doxyfile): `<path-to-project>\docs\doxygen`
       3. Run
     * via cmd:
-      * todo
+      ```bash
+      cd docs/doxygen
+      doxygen Doxyfile
+      ```
 
 ### Build PCL (and it's dependencies) from sources
   * Refer to the following documentation for building PCL (and it's dependencies) from sources with Visual Studio on Windows: [docs/build_PCL1.9.1.md](docs/build_PCL1.9.1.md) 
