@@ -30,6 +30,7 @@
   * FBX SDK 2020.1
     * download: https://www.autodesk.com/developer-network/platform-technologies/fbx-sdk-2020-0 [VS 2017]
     * install to default location `C:\Program Files`
+    * download [optional]: [FBX Review](https://www.autodesk.com/products/fbx/fbx-review) to view fbx files
   * USD SDK
     * todo
 

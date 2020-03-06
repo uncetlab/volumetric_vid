@@ -51,9 +51,9 @@ message("BLEND2D_LIBRARY_DEBUG=${BLEND2D_LIBRARY_DEBUG}")
 message("BLEND2D_LIBRARY_RELEASE=${BLEND2D_LIBRARY_RELEASE}")
 
 # FBX SDK
+find_path(FBXSDK_INCLUDE_PATH fbxsdk.h "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/include" NO_DEFAULT_PATH)
 set(FBXSDK_LIBRARIES_RELEASE "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/release/libfbxsdk-md.lib;C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/release/libxml2-md.lib;C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/release/zlib-md.lib")
 set(FBXSDK_LIBRARIES_DEBUG "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/debug/libfbxsdk-md.lib;C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/debug/libxml2-md.lib;C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/debug/zlib-md.lib")
-set(FBXSDK_INCLUDE_PATH "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/include")
 
 
 ################################################################################################
