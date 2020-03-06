@@ -55,6 +55,18 @@ set(FBXSDK_LIBRARIES_RELEASE "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib
 set(FBXSDK_LIBRARIES_DEBUG "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/debug/libfbxsdk-md.lib;C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/debug/libxml2-md.lib;C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/debug/zlib-md.lib")
 set(FBXSDK_INCLUDE_PATH "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/include")
 
+# USD SDK
+set(pxr_DIR "C:/Program Files/USD")
+find_package(pxr REQUIRED CONFIG)
+message(STATUS "PXR_arch_LIBRARY=${PXR_arch_LIBRARY}")
+message(STATUS "PXR_LIBRARIES=${PXR_LIBRARIES}")
+message(STATUS "PXR_INCLUDE_DIRS=${PXR_INCLUDE_DIRS}")
+
+#foreach(lib ${libs})
+#	message(STATUS "PXR_${lib}_LIBRARY=${PXR_${lib}_LIBRARY}")
+#	#target_link_libraries(DemoUSD ${PXR_${lib}_LIBRARY})
+#endforeach()
+
 
 ################################################################################################
 # Adding targets
@@ -70,6 +82,8 @@ add_executable(DemoTexturing "demo_texturing.cpp" "../src/volcap/texture/texturi
 add_executable(DemoBlend2D "demo_blend2d.cpp")
 add_executable(DemoUVMap "demo_uv_map.cpp" "../src/volcap/io/io.cpp" "../src/volcap/texture/uv_map.cpp")
 add_executable(DemoFbx "demo_fbx.cpp" "../src/volcap/io/io.cpp" "../src/volcap/io/io_fbx.cpp")
+add_executable(DemoUSD "demo_usd.cpp")
+
 #add_executable(pcl_visualizer_demo "pcl_visualizer_demo.cpp")
 
 #### DemoMLS
@@ -131,7 +145,9 @@ target_link_libraries(
 )
 
 #### DemoUSD
-
+target_include_directories(DemoUSD PRIVATE ${PXR_INCLUDE_DIRS})
+target_link_libraries(DemoUSD PUBLIC ${PXR_LIBRARIES})  # how does it know they're in the lib/ folder?'
+# remember to copy .dlls to a place where it can be found at runtime!
 
 ##### pcl_visualizer_demo
 #target_link_libraries(pcl_visualizer_demo ${PCL_LIBRARIES})

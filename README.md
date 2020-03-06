@@ -32,6 +32,7 @@
     * install to default location `C:\Program Files`
   * USD SDK
     * todo
+    * add .dll location to path (e.g. `C:\Program Files\USD\lib;C:\Program Files\USD\bin`)
 
 ### Building doxygen documentation
   * You can generate html and latex documentation (requires installing [doxygen](http://www.doxygen.nl/download.html#srcbin)): 
