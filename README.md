@@ -33,6 +33,7 @@
     * download [optional]: [FBX Review](https://www.autodesk.com/products/fbx/fbx-review) to view fbx files
   * USD SDK
     * todo
+    * add .dll location to path (e.g. `C:\Program Files\USD\lib;C:\Program Files\USD\bin`)
 
 ### Building doxygen documentation
   * You can generate html and latex documentation (requires installing [doxygen](http://www.doxygen.nl/download.html#srcbin)): 
