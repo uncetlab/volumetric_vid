@@ -18,9 +18,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #   - PCL_LIBRARY_DIRS (dirs for PCL + 3rd party dep libs)
 #   - PCL_DEFINITIONS (needed preprocessor defs and compiler flags)
 find_package(PCL 1.9.1 REQUIRED COMPONENTS common io surface visualization features)  #COMPONENTS common io surface visualization features
-message("PCL_INCLUDE_DIRS=${PCL_INCLUDE_DIRS}")
-message("PCL_LIBRARY_DIRS=${PCL_LIBRARY_DIRS}")
-message("PCL_DEFINITIONS=${PCL_DEFINITIONS}")
+message(STATUS "PCL_INCLUDE_DIRS=${PCL_INCLUDE_DIRS}")
+message(STATUS "PCL_LIBRARY_DIRS=${PCL_LIBRARY_DIRS}")
+message(STATUS "PCL_DEFINITIONS=${PCL_DEFINITIONS}")
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
@@ -29,26 +29,26 @@ add_definitions(${PCL_DEFINITIONS})
 find_path(UVATLAS_INCLUDE_DIR UVAtlas.h HINTS "${CMAKE_SOURCE_DIR}/external/UVAtlas/UVAtlas/inc" NO_DEFAULT_PATH)
 find_library(UVATLAS_LIBRARY_DEBUG UVAtlas HINTS "${CMAKE_SOURCE_DIR}/external/UVAtlas/UVAtlas/Bin/Desktop_2017_Win10/x64/Debug" NO_DEFAULT_PATH)
 find_library(UVATLAS_LIBRARY_RELEASE UVAtlas HINTS "${CMAKE_SOURCE_DIR}/external/UVAtlas/UVAtlas/Bin/Desktop_2017_Win10/x64/Release" NO_DEFAULT_PATH)
-message("UVATLAS_INCLUDE_DIR=${UVATLAS_INCLUDE_DIR}")
-message("UVATLAS_LIBRARY_DEBUG=${UVATLAS_LIBRARY_DEBUG}")
-message("UVATLAS_LIBRARY_RELEASE=${UVATLAS_LIBRARY_RELEASE}")
+message(STATUS "UVATLAS_INCLUDE_DIR=${UVATLAS_INCLUDE_DIR}")
+message(STATUS "UVATLAS_LIBRARY_DEBUG=${UVATLAS_LIBRARY_DEBUG}")
+message(STATUS "UVATLAS_LIBRARY_RELEASE=${UVATLAS_LIBRARY_RELEASE}")
 
 # DirectXMesh
 find_path(DIRECTXMESH_INCLUDE_DIR DirectXMesh.h HINTS "${CMAKE_SOURCE_DIR}/external/DirectXMesh/DirectXMesh" NO_DEFAULT_PATH)
 find_path(WAVEFRONTREADER_INCLUDE_DIR WaveFrontReader.h HINTS "${CMAKE_SOURCE_DIR}/external/DirectXMesh/Utilities" NO_DEFAULT_PATH)
 find_library(DIRECTXMESH_LIBRARY_DEBUG DirectXMesh HINTS "${CMAKE_SOURCE_DIR}/external/DirectXMesh/DirectXMesh/Bin/Desktop_2017_Win10/x64/Debug" NO_DEFAULT_PATH)
 find_library(DIRECTXMESH_LIBRARY_RELEASE DirectXMesh HINTS "${CMAKE_SOURCE_DIR}/external/DirectXMesh/DirectXMesh/Bin/Desktop_2017_Win10/x64/Release" NO_DEFAULT_PATH)
-message("DIRECTXMESH_INCLUDE_DIR=${DIRECTXMESH_INCLUDE_DIR}")
-message("DIRECTXMESH_LIBRARY_DEBUG=${DIRECTXMESH_LIBRARY_DEBUG}")
-message("DIRECTXMESH_LIBRARY_RELEASE=${DIRECTXMESH_LIBRARY_RELEASE}")
+message(STATUS "DIRECTXMESH_INCLUDE_DIR=${DIRECTXMESH_INCLUDE_DIR}")
+message(STATUS "DIRECTXMESH_LIBRARY_DEBUG=${DIRECTXMESH_LIBRARY_DEBUG}")
+message(STATUS "DIRECTXMESH_LIBRARY_RELEASE=${DIRECTXMESH_LIBRARY_RELEASE}")
 
 # Blend2D
 find_path(BLEND2D_INCLUDE_DIR blend2d.h HINTS "${CMAKE_SOURCE_DIR}/external/blend2d/src" NO_DEFAULT_PATH)
 find_library(BLEND2D_LIBRARY_DEBUG blend2d HINTS "${CMAKE_SOURCE_DIR}/external/blend2d/build/Debug" NO_DEFAULT_PATH)
 find_library(BLEND2D_LIBRARY_RELEASE blend2d HINTS "${CMAKE_SOURCE_DIR}/external/blend2d/build/Release" NO_DEFAULT_PATH)
-message("BLEND2D_INCLUDE_DIR=${BLEND2D_INCLUDE_DIR}")
-message("BLEND2D_LIBRARY_DEBUG=${BLEND2D_LIBRARY_DEBUG}")
-message("BLEND2D_LIBRARY_RELEASE=${BLEND2D_LIBRARY_RELEASE}")
+message(STATUS "BLEND2D_INCLUDE_DIR=${BLEND2D_INCLUDE_DIR}")
+message(STATUS "BLEND2D_LIBRARY_DEBUG=${BLEND2D_LIBRARY_DEBUG}")
+message(STATUS "BLEND2D_LIBRARY_RELEASE=${BLEND2D_LIBRARY_RELEASE}")
 
 # FBX SDK
 find_path(FBXSDK_INCLUDE_PATH fbxsdk.h "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/include" NO_DEFAULT_PATH)
@@ -62,17 +62,12 @@ message(STATUS "PXR_arch_LIBRARY=${PXR_arch_LIBRARY}")
 message(STATUS "PXR_LIBRARIES=${PXR_LIBRARIES}")
 message(STATUS "PXR_INCLUDE_DIRS=${PXR_INCLUDE_DIRS}")
 
-#foreach(lib ${libs})
-#	message(STATUS "PXR_${lib}_LIBRARY=${PXR_${lib}_LIBRARY}")
-#	#target_link_libraries(DemoUSD ${PXR_${lib}_LIBRARY})
-#endforeach()
-
 
 ################################################################################################
 # Adding targets
 ################################################################################################
 
-#include volcap for all targets
+# include volcap for all targets
 include_directories("../src")
 
 add_executable(DemoMLS "demo_mls.cpp" "../src/volcap/surface/spsr.cpp")
