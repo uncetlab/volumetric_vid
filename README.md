@@ -32,17 +32,20 @@
     * install to default location `C:\Program Files`
     * download [optional]: [FBX Review](https://www.autodesk.com/products/fbx/fbx-review) to view fbx files
   * USD SDK
-    * clone and run build script (requires python2 & pyside):
+    * clone and run build script (requires python2 & pyside): (run from a `x64 Native Tools Command Prompt for VS2017`)
       ```bash
       git clone https://github.com/PixarAnimationStudios/USD.git
       conda create --name python2
       conda activate python2
       conda install python=2.7
       conda install pip
+      conda install pyopengl
+      conda install jinja2
       pip install pyside  # install via pip bc not available in conda
-      python USD\build_scripts\build_usd.py "C:\Program Files\USD" --debug
+      python USD\build_scripts\build_usd.py "C:\Program Files\USD"  # adding --debug breaks it (won't be able to run in Debug mode, but Release / RelWithDebInfo work)
       ```
     * add .dll locations to path (e.g. `C:\Program Files\USD\lib` & `C:\Program Files\USD\bin`)
+    * if using the usd executables (e.g. `usdview`), you must run the command from a bash shell, it doesn't work in normal windows terminal
 
 ### Building doxygen documentation
   * You can generate html and latex documentation (requires installing [doxygen](http://www.doxygen.nl/download.html#srcbin)): 
