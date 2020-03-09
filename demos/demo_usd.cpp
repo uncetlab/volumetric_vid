@@ -6,6 +6,7 @@
 #include <pxr/usd/usdGeom/xform.h>
 #include <pxr/usd/usdGeom/sphere.h>
 #include <pxr/usd/usdGeom/mesh.h>
+#include <pxr/usd/usdGeom/primvarsAPI.h>
 #include <pxr/usd/sdf/layer.h>
 #include <pxr/base/vt/array.h>
 
@@ -124,8 +125,8 @@ void build_pyramid(
 
 }
 
-void create_seq() {
-	auto stage = pxr::UsdStage::CreateNew("HelloMesh.usda");
+void demo_create_seq() {
+	auto stage = pxr::UsdStage::CreateNew("CratePyramidTimeSample.usda");
 	int start_time = 0;
 	int half_time = 24;
 	stage->SetStartTimeCode(start_time);
@@ -146,7 +147,6 @@ void create_seq() {
 	//         TIME SAMPLE 2: PYRAMID
 	//================================
 
-	//======= build points for cube!
 	pxr::VtVec3fArray usdPoints1;
 	pxr::VtVec3fArray extentArray1(2);
 	pxr::VtArray<int> faceVertexCounts1, faceVertexIndices1;
@@ -170,15 +170,41 @@ void create_seq() {
 	stage->GetRootLayer()->Save();
 }
 
+void demo_create_crate() {
+	auto stage = pxr::UsdStage::CreateNew("Crate.usda");
+	auto usdMesh = pxr::UsdGeomMesh::Define(stage, pxr::SdfPath("/hello/mesh"));
+
+	pxr::VtVec3fArray usdPoints0;
+	pxr::VtVec3fArray extentArray0(2);
+	pxr::VtArray<int> faceVertexCounts0, faceVertexIndices0;
+	build_cube(usdPoints0, extentArray0, faceVertexCounts0, faceVertexIndices0);
+
+	// add material
+	//auto texCoords = usdMesh.CreatePrimvar(pxr::TfToken("st"),
+	//	pxr::SdfValueTypeNames->TexCoord2fArray,
+	//	pxr::UsdGeomTokens->varying);
+	//pxr::VtVec2fArray texCoordsArray;
+	//texCoordsArray.push_back();
+
+	//texCoords.Set(texCoordsArray);
+
+	pxr::UsdGeomPrimvarsAPI.CreatePrimvar();
+
+	// set attrs
+	usdMesh.GetPointsAttr().Set(usdPoints0);
+
+	usdMesh.GetFaceVertexCountsAttr().Set(faceVertexCounts0);
+	usdMesh.GetFaceVertexIndicesAttr().Set(faceVertexIndices0);
+
+	usdMesh.GetExtentAttr().Set(extentArray0);
+
+	stage->GetRootLayer()->Save();
+}
+
 int main()
 {
-	//auto stage = pxr::UsdStage::CreateNew("HelloWorld.usda");
-	//auto xformPrim = pxr::UsdGeomXform::Define(stage, pxr::SdfPath("/hello"));
-	//auto spherePrim = pxr::UsdGeomSphere::Define(stage, pxr::SdfPath("/hello/world"));
-	//stage->GetRootLayer()->Save();
 
-	////xformPrim.
-	//return 0;
+	demo_create_crate();
 
-	create_seq();
+	//demo_create_seq();
 }
