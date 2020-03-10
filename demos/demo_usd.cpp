@@ -7,8 +7,13 @@
 #include <pxr/usd/usdGeom/sphere.h>
 #include <pxr/usd/usdGeom/mesh.h>
 #include <pxr/usd/usdGeom/primvarsAPI.h>
+#include <pxr/usd/usdShade/material.h>
+#include <pxr/usd/usdShade/materialBindingAPI.h>
 #include <pxr/usd/sdf/layer.h>
 #include <pxr/base/vt/array.h>
+
+// get the project directory from preprocessor set in the top-level CMakeLists.txt
+const std::string PROJECT_DIR = _PROJECT_DIR;
 
 void build_cube(
 	pxr::VtVec3fArray &pts, pxr::VtVec3fArray &extentArray, pxr::VtArray<int> &faceVertexCounts, pxr::VtArray<int> &faceVertexIndices
@@ -125,6 +130,94 @@ void build_pyramid(
 
 }
 
+void add_cube_material(pxr::UsdGeomMesh &mesh, pxr::UsdStageRefPtr &stage) {
+
+	//====== add texture coords
+	auto geoPrimApi = pxr::UsdGeomPrimvarsAPI(mesh);
+	auto texCoords = geoPrimApi.CreatePrimvar(
+		pxr::TfToken("fdsa"),  // just a name, can be anything
+		pxr::SdfValueTypeNames->TexCoord2fArray,
+		pxr::UsdGeomTokens->faceVarying  // pxr::UsdGeomTokens->varying
+	);
+
+	pxr::VtVec2fArray texCoordsArray;
+
+	// 1
+	texCoordsArray.push_back(pxr::GfVec2f(0, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 1));
+	texCoordsArray.push_back(pxr::GfVec2f(0, 1));
+
+	// 2
+	texCoordsArray.push_back(pxr::GfVec2f(0, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 1));
+	texCoordsArray.push_back(pxr::GfVec2f(0, 1));
+
+	// 3
+	texCoordsArray.push_back(pxr::GfVec2f(0, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 1));
+	texCoordsArray.push_back(pxr::GfVec2f(0, 1));
+
+	// 4
+	texCoordsArray.push_back(pxr::GfVec2f(0, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 1));
+	texCoordsArray.push_back(pxr::GfVec2f(0, 1));
+
+	// 5
+	texCoordsArray.push_back(pxr::GfVec2f(0, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 1));
+	texCoordsArray.push_back(pxr::GfVec2f(0, 1));
+
+	// 6
+	texCoordsArray.push_back(pxr::GfVec2f(0, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 1));
+	texCoordsArray.push_back(pxr::GfVec2f(0, 1));
+
+	texCoords.Set(texCoordsArray);
+
+	//====== define material
+	auto usdMaterial = pxr::UsdShadeMaterial::Define(stage, pxr::SdfPath("/root/crateMat"));
+
+	// make the surface non - metallic, and somewhat rough
+	auto pbrShader = pxr::UsdShadeShader::Define(stage, pxr::SdfPath("/root/crateMat/pbrShader"));
+	pbrShader.CreateIdAttr(pxr::VtValue(pxr::TfToken("UsdPreviewSurface")));
+	pbrShader.CreateInput(pxr::TfToken("roughness"), pxr::SdfValueTypeNames->Float).Set(0.4f);
+	pbrShader.CreateInput(pxr::TfToken("metallic"), pxr::SdfValueTypeNames->Float).Set(0.0f);
+
+	usdMaterial.CreateSurfaceOutput().ConnectToSource(pbrShader, pxr::TfToken("surface"));
+
+	//create texture coordinate reader
+	auto stReader = pxr::UsdShadeShader::Define(stage, pxr::SdfPath("/root/crateMat/stReader"));
+	stReader.CreateIdAttr(pxr::VtValue(pxr::TfToken("UsdPrimvarReader_float2")));
+	auto stInput = usdMaterial.CreateInput(pxr::TfToken("frame:stPrimvarName"), pxr::SdfValueTypeNames->Token);
+	stInput.Set(pxr::TfToken("fdsa"));
+	stReader.CreateInput(pxr::TfToken("varname"), pxr::SdfValueTypeNames->Token).ConnectToSource(stInput);
+
+	//diffuse texture
+	auto diffuseTextureSampler = pxr::UsdShadeShader::Define(stage, pxr::SdfPath("/root/crateMat/diffuseTexture"));
+	diffuseTextureSampler.CreateIdAttr(pxr::VtValue(pxr::TfToken("UsdUVTexture")));
+	diffuseTextureSampler.CreateInput(pxr::TfToken("file"), pxr::SdfValueTypeNames->Asset)
+		.Set(pxr::SdfAssetPath(PROJECT_DIR + "/demo_data/Crate.jpg"));  //  "Crate.jpg"
+
+	diffuseTextureSampler.CreateInput(pxr::TfToken("st"), pxr::SdfValueTypeNames->Float2)
+		.ConnectToSource(stReader, pxr::TfToken("result"));
+
+	diffuseTextureSampler.CreateOutput(pxr::TfToken("rgb"), pxr::SdfValueTypeNames->Float3);
+	pbrShader.CreateInput(pxr::TfToken("diffuseColor"), pxr::SdfValueTypeNames->Color3f)
+		.ConnectToSource(diffuseTextureSampler, pxr::TfToken("rgb"));
+
+	//Now bind the Material to the board
+	pxr::UsdShadeMaterialBindingAPI materialBinding(mesh);
+	materialBinding.Bind(usdMaterial);
+}
+
+
+
 void demo_create_seq() {
 	auto stage = pxr::UsdStage::CreateNew("CratePyramidTimeSample.usda");
 	int start_time = 0;
@@ -172,31 +265,23 @@ void demo_create_seq() {
 
 void demo_create_crate() {
 	auto stage = pxr::UsdStage::CreateNew("Crate.usda");
-	auto usdMesh = pxr::UsdGeomMesh::Define(stage, pxr::SdfPath("/hello/mesh"));
+
+	//====== define mesh
+	auto usdMesh = pxr::UsdGeomMesh::Define(stage, pxr::SdfPath("/root/crate"));
 
 	pxr::VtVec3fArray usdPoints0;
 	pxr::VtVec3fArray extentArray0(2);
 	pxr::VtArray<int> faceVertexCounts0, faceVertexIndices0;
 	build_cube(usdPoints0, extentArray0, faceVertexCounts0, faceVertexIndices0);
 
-	// add material
-	//auto texCoords = usdMesh.CreatePrimvar(pxr::TfToken("st"),
-	//	pxr::SdfValueTypeNames->TexCoord2fArray,
-	//	pxr::UsdGeomTokens->varying);
-	//pxr::VtVec2fArray texCoordsArray;
-	//texCoordsArray.push_back();
-
-	//texCoords.Set(texCoordsArray);
-
-	pxr::UsdGeomPrimvarsAPI.CreatePrimvar();
-
 	// set attrs
 	usdMesh.GetPointsAttr().Set(usdPoints0);
-
 	usdMesh.GetFaceVertexCountsAttr().Set(faceVertexCounts0);
 	usdMesh.GetFaceVertexIndicesAttr().Set(faceVertexIndices0);
-
 	usdMesh.GetExtentAttr().Set(extentArray0);
+
+	//====== apply material
+	add_cube_material(usdMesh, stage);
 
 	stage->GetRootLayer()->Save();
 }
