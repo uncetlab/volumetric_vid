@@ -77,7 +77,8 @@ add_executable(DemoTexturing "demo_texturing.cpp" "../src/volcap/texture/texturi
 add_executable(DemoBlend2D "demo_blend2d.cpp")
 add_executable(DemoUVMap "demo_uv_map.cpp" "../src/volcap/io/io.cpp" "../src/volcap/texture/uv_map.cpp")
 add_executable(DemoFbx "demo_fbx.cpp" "../src/volcap/io/io.cpp" "../src/volcap/io/io_fbx.cpp")
-add_executable(DemoUSD "demo_usd.cpp")
+add_executable(DemoUSD "demo_usd.cpp" "../src/volcap/io/io.cpp" "../src/volcap/io/io_usd.cpp")
+add_executable(DemoUSDCrate "demo_usd_crate.cpp")
 add_executable(DemoUSDBillboard "demo_usd_billboard.cpp")
 
 #add_executable(pcl_visualizer_demo "pcl_visualizer_demo.cpp")
@@ -143,7 +144,9 @@ target_link_libraries(
 #### DemoUSD
 target_include_directories(DemoUSD PRIVATE ${PXR_INCLUDE_DIRS})
 target_link_libraries(DemoUSD PUBLIC ${PXR_LIBRARIES})  # how does it know they're in the lib/ folder?'
-# remember to copy .dlls to a place where it can be found at runtime!
+
+target_include_directories(DemoUSDCrate PRIVATE ${PXR_INCLUDE_DIRS})
+target_link_libraries(DemoUSDCrate PUBLIC ${PXR_LIBRARIES})
 
 target_include_directories(DemoUSDBillboard PRIVATE ${PXR_INCLUDE_DIRS})
 target_link_libraries(DemoUSDBillboard PUBLIC ${PXR_LIBRARIES})
