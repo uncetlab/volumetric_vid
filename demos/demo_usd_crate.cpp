@@ -15,8 +15,12 @@
 // get the project directory from preprocessor set in the top-level CMakeLists.txt
 const std::string PROJECT_DIR = _PROJECT_DIR;
 
-// adds cube to mesh at time `time`
-void add_cube(pxr::UsdStageRefPtr &stage, pxr::UsdGeomMesh &mesh, int time=0) {
+/**
+ * @brief adds cube to mesh at specified time (if specified)
+ *
+ * @param[in] time	time sample to insert cube at (does not use time samples by default)
+ */
+void add_cube(pxr::UsdStageRefPtr &stage, pxr::UsdGeomMesh &mesh, pxr::UsdTimeCode time=pxr::UsdTimeCode::Default()) {
 	std::string primvar_name = "st";
 
 	pxr::VtVec3fArray pts;
@@ -89,6 +93,14 @@ void add_cube(pxr::UsdStageRefPtr &stage, pxr::UsdGeomMesh &mesh, int time=0) {
 	faceVertexCounts.push_back(4);
 
 	//====== specify uv coords
+
+	// set uv indexing method
+	auto geoPrimApi = pxr::UsdGeomPrimvarsAPI(mesh);
+	auto texCoords = geoPrimApi.CreatePrimvar(
+		pxr::TfToken(primvar_name),  // just a name, can be anything
+		pxr::SdfValueTypeNames->TexCoord2fArray,
+		pxr::UsdGeomTokens->faceVarying  // pxr::UsdGeomTokens->varying
+	);
 
 	// 1
 	texCoordsArray.push_back(pxr::GfVec2f(0, 0));
@@ -163,19 +175,9 @@ void add_cube(pxr::UsdStageRefPtr &stage, pxr::UsdGeomMesh &mesh, int time=0) {
 	//================================
 
 	mesh.GetPointsAttr().Set(pts, time);
-
 	mesh.GetFaceVertexCountsAttr().Set(faceVertexCounts, time);
 	mesh.GetFaceVertexIndicesAttr().Set(faceVertexIndices, time);
-
 	mesh.GetExtentAttr().Set(extentArray, time);
-
-	// set uv coords
-	auto geoPrimApi = pxr::UsdGeomPrimvarsAPI(mesh);
-	auto texCoords = geoPrimApi.CreatePrimvar(
-		pxr::TfToken(primvar_name),  // just a name, can be anything
-		pxr::SdfValueTypeNames->TexCoord2fArray,
-		pxr::UsdGeomTokens->faceVarying  // pxr::UsdGeomTokens->varying
-	);
 	texCoords.Set(texCoordsArray, time);
 
 	//Now bind the Material to the board
@@ -343,10 +345,11 @@ void demo_create_seq() {
 }
 
 void demo_create_crate() {
-	auto stage = pxr::UsdStage::CreateNew(PROJECT_DIR + "/demos/demo_output/Crate.usda");
+	auto stage = pxr::UsdStage::CreateNew(PROJECT_DIR + "/demos/demo_output/Crate-timeSample0.usda");
+	//auto stage = pxr::UsdStage::CreateNew(PROJECT_DIR + "/demos/demo_output/Crate.usdc");
 	auto usdMesh = pxr::UsdGeomMesh::Define(stage, pxr::SdfPath("/TexModel/CrateMesh"));
 
-	add_cube(stage, usdMesh);
+	add_cube(stage, usdMesh, 0);
 
 	stage->GetRootLayer()->Save();
 }
