@@ -69,8 +69,8 @@ void volcap::io::load_meshes_from_dir(
 		//mesh->tex_materials.clear();
 		//mesh->tex_materials.push_back(mesh2.tex_materials[0]);
 
-		//edit texture files to be full paths (necessary when creating textures)
-		mesh->tex_materials[0].tex_file = dir_name + "/" + mesh->tex_materials[0].tex_file;
+		//edit texture files to be full paths (necessary when creating textures) -- it does this by default? --mh 3.11.20
+		//mesh->tex_materials[0].tex_file = dir_name + "/" + mesh->tex_materials[0].tex_file;
 
 		meshes.push_back(mesh);
 		//mesh_ids.push_back(mesh_path);

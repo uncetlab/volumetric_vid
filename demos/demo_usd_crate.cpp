@@ -36,7 +36,7 @@ void add_cube(pxr::UsdStageRefPtr &stage, pxr::UsdGeomMesh &mesh, int time=0) {
 	pts.push_back(pxr::GfVec3f(100, 100, 100));	// 6
 	pts.push_back(pxr::GfVec3f(0, 100, 100));	// 7
 
-	//====== calculate extent
+	//====== calculate extent -- not actually required? it still works is usdview without extent
 	pxr::GfRange3f extent;
 	for (const auto& pt : pts) {
 		extent.UnionWith(pt);
@@ -357,6 +357,6 @@ int main()
 	// creates a single textured crate
 	demo_create_crate();
 
-	// creates a 2 second sequence, 1st sec is textured crate, 2nd sec is textured pyramid
-	demo_create_seq();
+	//// creates a 2 second sequence, 1st sec is textured crate, 2nd sec is textured pyramid
+	//demo_create_seq();
 }

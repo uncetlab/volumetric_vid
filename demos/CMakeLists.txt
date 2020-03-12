@@ -142,8 +142,8 @@ target_link_libraries(
 )
 
 #### DemoUSD
+target_link_libraries(DemoUSD ${PCL_LIBRARIES} ${PXR_LIBRARIES})
 target_include_directories(DemoUSD PRIVATE ${PXR_INCLUDE_DIRS})
-target_link_libraries(DemoUSD PUBLIC ${PXR_LIBRARIES})  # how does it know they're in the lib/ folder?'
 
 target_include_directories(DemoUSDCrate PRIVATE ${PXR_INCLUDE_DIRS})
 target_link_libraries(DemoUSDCrate PUBLIC ${PXR_LIBRARIES})
