@@ -31,14 +31,14 @@ void add_cube(pxr::UsdStageRefPtr &stage, pxr::UsdGeomMesh &mesh, pxr::UsdTimeCo
 
 	//======= build points for cube!
 	pts.reserve(8);
-	pts.push_back(pxr::GfVec3f(0, 0, 0));		// 0
-	pts.push_back(pxr::GfVec3f(100, 0, 0));		// 1
-	pts.push_back(pxr::GfVec3f(100, 0, 100));	// 2
-	pts.push_back(pxr::GfVec3f(0, 0, 100));		// 3
-	pts.push_back(pxr::GfVec3f(0, 100, 0));		// 4
-	pts.push_back(pxr::GfVec3f(100, 100, 0));	// 5
-	pts.push_back(pxr::GfVec3f(100, 100, 100));	// 6
-	pts.push_back(pxr::GfVec3f(0, 100, 100));	// 7
+	pts.push_back(pxr::GfVec3f(-50, 100, -50));		// 0
+	pts.push_back(pxr::GfVec3f(50,	100, -50));		// 1
+	pts.push_back(pxr::GfVec3f(50,	100, 50	));		// 2
+	pts.push_back(pxr::GfVec3f(-50,	100, 50	));		// 3
+	pts.push_back(pxr::GfVec3f(-50,	0,	 -50));		// 4
+	pts.push_back(pxr::GfVec3f(50,	0,	 -50));		// 5
+	pts.push_back(pxr::GfVec3f(50,	0,	 50	));		// 6
+	pts.push_back(pxr::GfVec3f(-50,	0,	 50	));		// 7
 
 	//====== calculate extent -- not actually required? it still works is usdview without extent
 	pxr::GfRange3f extent;
@@ -52,37 +52,37 @@ void add_cube(pxr::UsdStageRefPtr &stage, pxr::UsdGeomMesh &mesh, pxr::UsdTimeCo
 
 	// face 1
 	faceVertexIndices.push_back(0);
-	faceVertexIndices.push_back(1);
-	faceVertexIndices.push_back(2);
 	faceVertexIndices.push_back(3);
+	faceVertexIndices.push_back(2);
+	faceVertexIndices.push_back(1);
 	faceVertexCounts.push_back(4);
 
 	// face 2
 	faceVertexIndices.push_back(0);
-	faceVertexIndices.push_back(3);
-	faceVertexIndices.push_back(7);
 	faceVertexIndices.push_back(4);
+	faceVertexIndices.push_back(7);
+	faceVertexIndices.push_back(3);
 	faceVertexCounts.push_back(4);
 
 	// face 3
 	faceVertexIndices.push_back(3);
-	faceVertexIndices.push_back(2);
-	faceVertexIndices.push_back(6);
 	faceVertexIndices.push_back(7);
+	faceVertexIndices.push_back(6);
+	faceVertexIndices.push_back(2);
 	faceVertexCounts.push_back(4);
 
 	// face 4
 	faceVertexIndices.push_back(2);
-	faceVertexIndices.push_back(1);
-	faceVertexIndices.push_back(5);
 	faceVertexIndices.push_back(6);
+	faceVertexIndices.push_back(5);
+	faceVertexIndices.push_back(1);
 	faceVertexCounts.push_back(4);
 
 	// face 5
 	faceVertexIndices.push_back(1);
-	faceVertexIndices.push_back(0);
-	faceVertexIndices.push_back(4);
 	faceVertexIndices.push_back(5);
+	faceVertexIndices.push_back(4);
+	faceVertexIndices.push_back(0);
 	faceVertexCounts.push_back(4);
 
 	// face 6
@@ -198,10 +198,11 @@ void add_pyramid(pxr::UsdStageRefPtr &stage, pxr::UsdGeomMesh &mesh, int time = 
 	//======= build points for pyramid!
 
 	pts.reserve(4);
-	pts.push_back(pxr::GfVec3f(0, 0, 0));		// 0
-	pts.push_back(pxr::GfVec3f(100, 0, 50));	// 1
-	pts.push_back(pxr::GfVec3f(0, 0, 100));		// 2
-	pts.push_back(pxr::GfVec3f(50, 100, 50));	// 3
+	pts.push_back(pxr::GfVec3f(0, 100, 0));			// 0
+	pts.push_back(pxr::GfVec3f(-50, 0, -50));		// 1
+	pts.push_back(pxr::GfVec3f(50, 0, -50));		// 2
+	pts.push_back(pxr::GfVec3f(50, 0, 50));			// 3
+	pts.push_back(pxr::GfVec3f(-50, 0, 50));		// 4
 
 	//====== calculate extent
 	pxr::GfRange3f extent1;
@@ -215,8 +216,8 @@ void add_pyramid(pxr::UsdStageRefPtr &stage, pxr::UsdGeomMesh &mesh, int time = 
 
 	// face 1
 	faceVertexIndices.push_back(0);
-	faceVertexIndices.push_back(1);
 	faceVertexIndices.push_back(2);
+	faceVertexIndices.push_back(1);
 	faceVertexCounts.push_back(3);
 
 	// face 2
@@ -226,15 +227,27 @@ void add_pyramid(pxr::UsdStageRefPtr &stage, pxr::UsdGeomMesh &mesh, int time = 
 	faceVertexCounts.push_back(3);
 
 	// face 3
-	faceVertexIndices.push_back(1);
+	faceVertexIndices.push_back(0);
+	faceVertexIndices.push_back(4);
 	faceVertexIndices.push_back(3);
-	faceVertexIndices.push_back(2);
 	faceVertexCounts.push_back(3);
 
 	// face 4
+	faceVertexIndices.push_back(0);
+	faceVertexIndices.push_back(1);
+	faceVertexIndices.push_back(4);
+	faceVertexCounts.push_back(3);
+
+	// face 5
+	faceVertexIndices.push_back(1);
+	faceVertexIndices.push_back(3);
+	faceVertexIndices.push_back(4);
+	faceVertexCounts.push_back(3);
+
+	// face 6
+	faceVertexIndices.push_back(1);
 	faceVertexIndices.push_back(2);
 	faceVertexIndices.push_back(3);
-	faceVertexIndices.push_back(0);
 	faceVertexCounts.push_back(3);
 
 	//====== specify uv coords
@@ -255,6 +268,16 @@ void add_pyramid(pxr::UsdStageRefPtr &stage, pxr::UsdGeomMesh &mesh, int time = 
 	texCoordsArray.push_back(pxr::GfVec2f(1, 1));
 
 	// 4
+	texCoordsArray.push_back(pxr::GfVec2f(0, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 1));
+
+	// 5
+	texCoordsArray.push_back(pxr::GfVec2f(0, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 0));
+	texCoordsArray.push_back(pxr::GfVec2f(1, 1));
+
+	// 6
 	texCoordsArray.push_back(pxr::GfVec2f(0, 0));
 	texCoordsArray.push_back(pxr::GfVec2f(1, 0));
 	texCoordsArray.push_back(pxr::GfVec2f(1, 1));
@@ -345,11 +368,11 @@ void demo_create_seq() {
 }
 
 void demo_create_crate() {
-	auto stage = pxr::UsdStage::CreateNew(PROJECT_DIR + "/demos/demo_output/Crate-timeSample0.usda");
-	//auto stage = pxr::UsdStage::CreateNew(PROJECT_DIR + "/demos/demo_output/Crate.usdc");
+	//auto stage = pxr::UsdStage::CreateNew(PROJECT_DIR + "/demos/demo_output/Crate-timeSample0.usda");
+	auto stage = pxr::UsdStage::CreateNew(PROJECT_DIR + "/demos/demo_output/Crate.usda");
 	auto usdMesh = pxr::UsdGeomMesh::Define(stage, pxr::SdfPath("/TexModel/CrateMesh"));
 
-	add_cube(stage, usdMesh, 0);
+	add_cube(stage, usdMesh);
 
 	stage->GetRootLayer()->Save();
 }
@@ -357,9 +380,9 @@ void demo_create_crate() {
 int main()
 {
 
-	// creates a single textured crate
-	demo_create_crate();
+	//// creates a single textured crate
+	//demo_create_crate();
 
-	//// creates a 2 second sequence, 1st sec is textured crate, 2nd sec is textured pyramid
-	//demo_create_seq();
+	// creates a 2 second sequence, 1st sec is textured crate, 2nd sec is textured pyramid
+	demo_create_seq();
 }
