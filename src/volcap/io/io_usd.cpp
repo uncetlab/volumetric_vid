@@ -27,10 +27,18 @@ namespace volcap {
 			stage->GetRootLayer()->Save();
 		}
 
+		void UsdExporter::usdFromTextureMesh(
+			pcl::TextureMeshPtr mesh,
+			const std::string mesh_name
+		) {
+			addMesh(*mesh);
+		}
+
 		void UsdExporter::usdFromTextureMeshes(
 			std::vector<pcl::TextureMeshPtr> meshes,
 			std::vector<std::string> mesh_names
 		) {
+
 			int start_time = 0;
 			int full_time = meshes.size();
 			stage->SetStartTimeCode(start_time);
@@ -42,7 +50,12 @@ namespace volcap {
 
 		}
 
-		void UsdExporter::addMesh(pcl::TextureMesh &mesh, int time) {
+		void UsdExporter::rotateXYZ(float deg_x, float deg_y, float deg_z) {
+			pxr::UsdGeomXformOp rotateOp = usdMesh.AddRotateXYZOp();
+			rotateOp.Set(pxr::GfVec3f(deg_x, deg_y, deg_z));
+		}
+
+		void UsdExporter::addMesh(pcl::TextureMesh &mesh, pxr::UsdTimeCode time) {
 
 			std::string primvar_name = "st";
 
@@ -90,8 +103,8 @@ namespace volcap {
 			// make the surface non - metallic, and somewhat rough
 			auto pbrShader = pxr::UsdShadeShader::Define(stage, pxr::SdfPath(mat_path + "/pbrShader"));
 			pbrShader.CreateIdAttr(pxr::VtValue(pxr::TfToken("UsdPreviewSurface")));
-			pbrShader.CreateInput(pxr::TfToken("roughness"), pxr::SdfValueTypeNames->Float).Set(0.4f);
-			pbrShader.CreateInput(pxr::TfToken("metallic"), pxr::SdfValueTypeNames->Float).Set(0.0f);
+			//pbrShader.CreateInput(pxr::TfToken("roughness"), pxr::SdfValueTypeNames->Float).Set(0.4f);
+			//pbrShader.CreateInput(pxr::TfToken("metallic"), pxr::SdfValueTypeNames->Float).Set(0.0f);
 
 			usdMaterial.CreateSurfaceOutput().ConnectToSource(pbrShader, pxr::TfToken("surface"));
 

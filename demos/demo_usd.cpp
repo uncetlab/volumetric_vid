@@ -18,9 +18,24 @@ int main(int argc, char** argv) {
 	std::vector<std::string> mesh_filenames;
 	volcap::io::load_meshes_from_dir(input_dir, meshes, mesh_filenames);
 
-	//volcap::io::usdFromTextureMeshes(meshes, mesh_filenames, output_dir + "/usd_seq.usda");
+	///********* export to a single file with timesamples *********/
+	//volcap::io::UsdExporter exporter(output_dir + "/usd_seq.usda");
+	////volcap::io::UsdExporter exporter(output_dir + "/usd_seq.usdc");  // can also export to .usdc, but usdzip does this for us
+	//exporter.usdFromTextureMeshes(meshes, mesh_filenames);
 
-	volcap::io::UsdExporter exporter(output_dir + "/usd_seq.usda");
-	exporter.usdFromTextureMeshes(meshes, mesh_filenames);
-	exporter.save();
+	//// manually rotate this sequence so the up axis is y+ and dude is facing forward direction (z+)
+	//exporter.rotateXYZ(180, 45, 0);
+
+	//exporter.save();
+
+	/********* export to multiple files with no timesamples *********/
+	for (int i = 0; i < meshes.size(); i++) {
+		volcap::io::UsdExporter exporter(output_dir + "/" + mesh_filenames[i] + ".usda");
+		exporter.usdFromTextureMesh(meshes[i], mesh_filenames[i]);
+
+		// manually rotate this sequence so the up axis is y+ and dude is facing forward direction (z+)
+		exporter.rotateXYZ(180, 45, 0);
+
+		exporter.save();
+	}
 }
