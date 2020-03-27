@@ -43,6 +43,7 @@
       conda install jinja2
       pip install pyside  # install via pip bc not available in conda
       python USD\build_scripts\build_usd.py "C:\Program Files\USD"  # adding --debug breaks it (won't be able to run in Debug mode, but Release / RelWithDebInfo work)
+      # python USD\build_scripts\build_usd.py "C:\Program Files\USD" --debug --no-python
       ```
     * add .dll locations to path (e.g. `C:\Program Files\USD\lib` & `C:\Program Files\USD\bin`)
     * if using the usd executables (e.g. `usdview`), you must run the command from a bash shell, it doesn't work in normal windows terminal
