@@ -4,7 +4,11 @@
 #include <pcl/io/vtk_lib_io.h>
 #include <boost/filesystem.hpp>
 
-void volcap::io::load_meshes_from_dir(const std::string dir_name, std::vector<pcl::PolygonMeshPtr> &meshes, std::vector<std::string> &mesh_ids) {
+void volcap::io::load_meshes_from_dir(
+	const std::string dir_name,
+	std::vector<pcl::PolygonMeshPtr> &meshes,
+	std::vector<std::string> &mesh_ids
+) {
 	boost::filesystem::path input_dir(dir_name);
 
 	boost::filesystem::directory_iterator it{ input_dir };
