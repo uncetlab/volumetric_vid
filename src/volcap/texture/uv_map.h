@@ -14,6 +14,10 @@ namespace volcap {
 		 * @param[in] pmesh		a poly mesh with a valid `pmesh.cloud` and `pmesh.polygons`
 		 * @param[out] tmesh	uv-mapping gets placed in `tmesh.tex_coordinates`, other fields are copied from `pmesh`
 		 */
-		void generateUVMapping(pcl::PolygonMesh &pmesh, pcl::TextureMesh& tmesh);
+		void generateUVMapping(
+			pcl::PolygonMesh &pmesh,
+			pcl::TextureMesh& tmesh,
+			float maxStretch=0.f
+		);
 	}
 }

@@ -17,7 +17,7 @@ HRESULT __cdecl print_percentage(float percentComplete) {
 	return 0;
 }
 
-void volcap::texture::generateUVMapping(pcl::PolygonMesh &pmesh, pcl::TextureMesh &tmesh) {
+void volcap::texture::generateUVMapping(pcl::PolygonMesh &pmesh, pcl::TextureMesh &tmesh, float maxStretch) {
 
 	// Prepare input for UVAtlas Create
 	size_t nFaces = pmesh.polygons.size();
@@ -70,7 +70,7 @@ void volcap::texture::generateUVMapping(pcl::PolygonMesh &pmesh, pcl::TextureMes
 		indicies.get(), // indicies of verticies which make up a face (every 3 is a tri)
 		DXGI_FORMAT_R16_UINT,	// index format
 		nFaces,					// # of faces
-		0, 0.f,					// max # of charts, max stretch param
+		0, maxStretch,					// max # of charts, max stretch param
 		texture_width, texture_height,  // width and height the atlas will be used on
 		1.f,					// the minimum distance, in texels between two charts on the atlas
 		adj.get(),				//
