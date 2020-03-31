@@ -157,8 +157,8 @@ void showCameras(pcl::texture_mapping::CameraVector cams, pcl::PointCloud<pcl::P
 
 	// add the mesh's cloud (colored on Z axis)
 	if (cloud) {
-	pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> color_handler(cloud, "z");
-	visu.addPointCloud(cloud, color_handler, "cloud");
+		pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> color_handler(cloud, "z");
+		visu.addPointCloud(cloud, color_handler, "cloud");
 	}
 
 	// reset camera
@@ -192,7 +192,9 @@ void custom_seg_demo() {
 	//==> segment using custom func
 	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> tex_coords;
 	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> img_coords;
-	t.segmentUVMeshByCamera(tmesh, my_cams, tex_coords, img_coords);
+	std::vector<std::vector<int>> tri_verts;
+	std::vector<std::vector<float>> cam_weights;
+	t.segmentUVMeshByCamera(tmesh, my_cams, tex_coords, img_coords, tri_verts, cam_weights);
 
 	//==> prepare image files
 	std::vector<std::string> img_files;
@@ -205,7 +207,7 @@ void custom_seg_demo() {
 	//std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/test_panoptic_texture_04.bmp";
 	//std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/kd-tree_occlusion_50_02.bmp";
 	std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/kd-tree_occlusion_all.bmp";
-	t.generateUVTextureFromImages(texture_file_name, tex_coords, img_coords, img_files);
+	t.generateUVTextureFromImages(texture_file_name, tex_coords, img_coords, img_files, tri_verts, cam_weights);
 }
 
 // custom segmentation + texturing demo for a sequence of meshes
@@ -233,7 +235,9 @@ void custom_seg_dir_demo(std::string input_dir, std::string output_dir, std::str
 		//==> segment using custom func
 		std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> tex_coords;
 		std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> img_coords;
-		t.segmentUVMeshByCamera(mesh, my_cams, tex_coords, img_coords);
+		std::vector<std::vector<int>> tri_verts;
+		std::vector<std::vector<float>> cam_weights;
+		t.segmentUVMeshByCamera(mesh, my_cams, tex_coords, img_coords, tri_verts, cam_weights);
 
 		//==> prepare image files
 		std::vector<std::string> img_files;
@@ -254,7 +258,7 @@ void custom_seg_dir_demo(std::string input_dir, std::string output_dir, std::str
 		//==> generate texture map using UVAtlas' uv-map, greedy custom segmentation
 		std::string texture_file = mesh_ids[idx_mesh] + ".bmp";
 		std::string texture_file_full = output_dir + "/" + texture_file;
-		t.generateUVTextureFromImages(texture_file_full, tex_coords, img_coords, img_files);
+		t.generateUVTextureFromImages(texture_file_full, tex_coords, img_coords, img_files, tri_verts, cam_weights);
 
 		//==> update TextureMesh material to use new texture file
 		//mesh.tex_materials[0].tex_file = texture_file_full;  // saving full path in texture material

@@ -4,7 +4,7 @@
 #include <blend2d.h>
 #include <Eigen/LU>
 #include <assert.h>
-
+#include <unordered_set>
 
 void volcap::texture::Texturing::generateGradientTexture(const std::string &file_name, std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> &tex_coords) {
 	// create image for drawing on
@@ -57,7 +57,9 @@ void volcap::texture::Texturing::generateUVTextureFromImages(
 	const std::string &file_name,
 	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &tex_coords,
 	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &img_coords,
-	std::vector<std::string> &img_files
+	std::vector<std::string> &img_files,
+	std::vector<std::vector<int>> &tri_verts,
+	std::vector<std::vector<float>> &cam_weights
 ) {
 	//==> validate input
 	// ASSERT( img_coords.size() == tex_coords.size() == img_files.size() )
@@ -78,6 +80,8 @@ void volcap::texture::Texturing::generateUVTextureFromImages(
 	ctx.setFillStyle(BLRgba32(0xFF000000));
 	ctx.fillAll();
 
+	std::map<std::set<int>, float> tri_cam_weights;
+
 	for (int cam_idx = 0; cam_idx < cam_size; cam_idx++) {
 		// get texture
 		BLImage texture;
@@ -89,19 +93,30 @@ void volcap::texture::Texturing::generateUVTextureFromImages(
 
 		// loop thru tris
 		for (int vertex_idx = 0; vertex_idx < tex_coords[cam_idx].size(); vertex_idx += 3) {
+			float w = std::abs(cam_weights[cam_idx][vertex_idx / 3]);  // cam preference weight for this tri
+
+			std::set<int> tri;  // defines a tri, used as a key in our dict
+			tri.insert(tri_verts[cam_idx][vertex_idx]);
+			tri.insert(tri_verts[cam_idx][vertex_idx+1]);
+			tri.insert(tri_verts[cam_idx][vertex_idx+2]);
+
+			// don't copy texture if we've already copied from a better camera
+			// TODO: never copy multiple times, determine best cam ahead of time, or 
+			//  implement blending (and continue copying multiple times)
+			std::map<std::set<int>, float>::iterator it = tri_cam_weights.find(tri);
+			if (it == tri_cam_weights.end()) {  // not in dict
+				tri_cam_weights.insert(std::pair<std::set<int>, float>(tri, w));
+			} else {  // in dict, check if better viewing angle
+				if (w < it->second) {
+					continue;  // previous viewing angle was better
+				} else {
+					it->second = w;
+				}
+			}
+
 			Eigen::Vector2f uv_pt0(tex_coords[cam_idx][vertex_idx].x()* BITMAP_SIZE, (1.0 - tex_coords[cam_idx][vertex_idx].y())* BITMAP_SIZE);
 			Eigen::Vector2f uv_pt1(tex_coords[cam_idx][vertex_idx + 1].x()* BITMAP_SIZE, (1.0 - tex_coords[cam_idx][vertex_idx + 1].y())* BITMAP_SIZE);
 			Eigen::Vector2f uv_pt2(tex_coords[cam_idx][vertex_idx + 2].x()* BITMAP_SIZE, (1.0 - tex_coords[cam_idx][vertex_idx + 2].y())* BITMAP_SIZE);
-
-
-			//Eigen::Vector2f uv_pt1 = tex_coords[cam_idx][vertex_idx + 1] * BITMAP_SIZE;
-			//Eigen::Vector2f uv_pt2 = tex_coords[cam_idx][vertex_idx + 2] * BITMAP_SIZE;
-
-			//BLTriangle tri(
-			//	uv_pt0(0) * BITMAP_SIZE, (1.0 - uv_pt0(1)) * BITMAP_SIZE,
-			//	uv_pt1(0) * BITMAP_SIZE, (1.0 - uv_pt1(1)) * BITMAP_SIZE,
-			//	uv_pt2(0) * BITMAP_SIZE, (1.0 - uv_pt2(1)) * BITMAP_SIZE
-			//);
 
 			Eigen::Vector2f img_pt0 = img_coords[cam_idx][vertex_idx];
 			Eigen::Vector2f img_pt1 = img_coords[cam_idx][vertex_idx + 1];
@@ -132,18 +147,14 @@ void volcap::texture::Texturing::generateUVTextureFromImages(
 			//printf("=====> img_pts*transformation:\n");
 			//std::cout << transformation*img_pts << "\n";
 
-
-
 			BLPattern pattern(texture);
 			BLMatrix2D bl_matrix(
 				transformation(0, 0), transformation(1, 0),
 				transformation(0, 1), transformation(1, 1),
 				transformation(0, 2), transformation(1, 2)
 			);
-			//pattern.setMatrix(bl_matrix);
 			pattern.transform(bl_matrix);
 			ctx.setFillStyle(pattern);
-			//ctx.fillTriangle(tri);
 			ctx.fillTriangle(
 				uv_pt0.x(), uv_pt0.y(),
 				uv_pt1.x(), uv_pt1.y(),
@@ -164,7 +175,9 @@ void volcap::texture::Texturing::segmentUVMeshByCamera(
 	pcl::TextureMesh &mesh,
 	pcl::texture_mapping::CameraVector cams,
 	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &tex_coords,
-	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &img_coords
+	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &img_coords,
+	std::vector<std::vector<int>> &tri_verts,
+	std::vector<std::vector<float>> &cam_weights
 ) {
 	//==> validate input
 	assert(mesh.tex_polygons.size() == 1 && mesh.tex_coordinates.size() == 1);
@@ -188,6 +201,8 @@ void volcap::texture::Texturing::segmentUVMeshByCamera(
 	//==> initialize tex_coords / img_coords for each camera
 	tex_coords.resize(cams.size());
 	img_coords.resize(cams.size());
+	cam_weights.resize(cams.size());
+	tri_verts.resize(cams.size());
 
 	//==> loop thru all tris and segment into groups
 	const std::vector<pcl::Vertices> &submesh = mesh.tex_polygons[0];
@@ -207,11 +222,27 @@ void volcap::texture::Texturing::segmentUVMeshByCamera(
 				continue;
 			}
 
+			// calc cam preference value and store it in `cam_weights`
+			Eigen::Hyperplane<float, 3> plane =
+			Eigen::Hyperplane<float, 3>::Through(
+				(*cloud)[point_idx_0].getArray3fMap(),
+				(*cloud)[point_idx_1].getArray3fMap(),
+				(*cloud)[point_idx_2].getArray3fMap()
+			);
+			Eigen::Vector3f normal_vec = plane.normal();
+			Eigen::Vector3f view_vec;
+			view_vec(0) = cams[cam_idx].pose(0, 2);
+			view_vec(1) = cams[cam_idx].pose(1, 2);
+			view_vec(2) = cams[cam_idx].pose(2, 2);
+			float result = normal_vec.dot(view_vec);
+
+			cam_weights[cam_idx].push_back(result);
+
+			// copy img_coords
 			Eigen::Vector2f img_coord0(projected_cloud[point_idx_0].x, projected_cloud[point_idx_0].y);
 			Eigen::Vector2f img_coord1(projected_cloud[point_idx_1].x, projected_cloud[point_idx_1].y);
 			Eigen::Vector2f img_coord2(projected_cloud[point_idx_2].x, projected_cloud[point_idx_2].y);
 
-			// copy img_coords
 			img_coords[cam_idx].push_back(img_coord0);
 			img_coords[cam_idx].push_back(img_coord1);
 			img_coords[cam_idx].push_back(img_coord2);
@@ -221,9 +252,10 @@ void volcap::texture::Texturing::segmentUVMeshByCamera(
 			tex_coords[cam_idx].push_back(mesh.tex_coordinates[0][face_idx * 3 + 1]);
 			tex_coords[cam_idx].push_back(mesh.tex_coordinates[0][face_idx * 3 + 2]);
 
-			// break for first cam which can see the face (greedy segmentation)
-			// TODO: allow duplicates across cams, and do a weighted blend
-			break;
+			// copy tri_verts
+			tri_verts[cam_idx].push_back(point_idx_0);
+			tri_verts[cam_idx].push_back(point_idx_1);
+			tri_verts[cam_idx].push_back(point_idx_2);
 		}
 	}
 }
