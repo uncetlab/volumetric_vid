@@ -30,6 +30,7 @@ add_executable(DemoTexturing "demo_texturing.cpp")
 add_executable(DemoFbx "demo_fbx.cpp")
 add_executable(DemoUSD "demo_usd.cpp")
 add_executable(DemoVisualizer "demo_visualizer.cpp")
+add_executable(DemoVCLData "demo_vcl_data.cpp")
 
 # these are just me messing around with libs, shouldn't be included  # TODO: find a place for them
 #add_executable(DemoBlend2D "demo_blend2d.cpp")
@@ -45,3 +46,4 @@ target_link_libraries(DemoTexturing PRIVATE volcap_library ${PCL_LIBRARIES})
 target_link_libraries(DemoFbx PRIVATE volcap_library ${PCL_LIBRARIES})
 target_link_libraries(DemoUSD PRIVATE volcap_library ${PCL_LIBRARIES})
 target_link_libraries(DemoVisualizer PRIVATE volcap_library)
+target_link_libraries(DemoVCLData PRIVATE ${PCL_LIBRARIES})
