@@ -91,9 +91,7 @@ int main(int argc, char** argv)
 	boost::filesystem::path input_dir(PROJECT_DIR + "/demos/demo_output/03_mesh_decimated/decimated_0.800000");
 	//boost::filesystem::path out_dir(PROJECT_DIR + "/demos/demo_output/04_mesh_uv-mapped/stretch_" + std::to_string(maxStretch));
 	boost::filesystem::path out_dir(PROJECT_DIR + "/demos/demo_output/04_mesh_uv-mapped");
-	boost::filesystem::path out_dir_test(PROJECT_DIR + "/demos/demo_output/04_mesh_uv-mapped/stretch_test");
 	boost::filesystem::create_directory(out_dir);
-	boost::filesystem::create_directory(out_dir_test);
 
 	std::vector<pcl::PolygonMeshPtr> p_meshes;
 	std::vector<std::string> mesh_paths;
@@ -101,5 +99,7 @@ int main(int argc, char** argv)
 
 	run_demo_sequence(p_meshes, mesh_paths, out_dir.string(), maxStretch);
 
+	//boost::filesystem::path out_dir_test(PROJECT_DIR + "/demos/demo_output/04_mesh_uv-mapped/stretch_test");
+	//boost::filesystem::create_directory(out_dir_test);
 	//test_stretch(p_meshes[0], mesh_paths[0], out_dir_test.string());
 }

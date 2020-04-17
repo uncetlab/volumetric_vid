@@ -5,3 +5,5 @@ Demos should be executed in this order:
   3. demo_uv_map
   4. demo_texturing
   5. demo_fbx
+  6. demo_usd
+  7. demo_visualizer
