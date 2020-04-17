@@ -27,17 +27,24 @@ namespace volcap {
 
 			/**
 			 * @brief Generates a texture map (.bmp) using the specified uv coordinates
+			 * @remark tex_coods, img_coords, tri_verts all have the same dimension, and the groups
+			 *  of 3 within each param should correspond to the same tri
 			 *
 			 * @param[in] file_name
 			 * @param[in] tex_coords	a list of uv coords (for each img). Assume every 3 make up a tri
 			 * @param[in] img_coords	a list of image coords (for each img). Assume every 3 make up a tri
 			 * @param[in] img_files		a list of images files
+			 * @param[in] tri_verts		a list of vertex indices (for each img). Assume every 3 make up a tri
+			 * @param[in] cam_weights	a list of cam weights (for each img). Only 1 value per tri => Size of inner
+			 *  vec is 1/3 of `tex_coords`, `img_coords` & `tri_verts`
 			 */
 			void generateUVTextureFromImages(
 				const std::string &file_name,
 				std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &tex_coords,
 				std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &img_coords,
-				std::vector<std::string> &img_files
+				std::vector<std::string> &img_files,
+				std::vector<std::vector<int>> &tri_verts,
+				std::vector<std::vector<float>> &cam_weights
 			);
 
 			/**
@@ -51,12 +58,17 @@ namespace volcap {
 			 * @param[in] cams			cameras by which to segment
 			 * @param[out] tex_coords	a list of uv coords (for each img). Assume every 3 make up a tri
 			 * @param[out] img_coords	a list of image coords (for each img). Assume every 3 make up a tri
+			 * @param[out] tri_verts	a list of vertex indices (for each img). Assume every 3 make up a tri
+			 * @param[out] cam_weights	a list of cam weights (for each img). Only 1 value per tri => Size of inner
+			 *  vec is 1/3 of `tex_coords`, `img_coords` & `tri_verts`
 			 */
 			void segmentUVMeshByCamera(
 				pcl::TextureMesh &mesh,
 				pcl::texture_mapping::CameraVector cams,
 				std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &tex_coords,
-				std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &img_coords
+				std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &img_coords,
+				std::vector<std::vector<int>> &tri_verts,
+				std::vector<std::vector<float>> &cam_weights
 			);
 
 			/**

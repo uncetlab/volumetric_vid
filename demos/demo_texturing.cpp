@@ -14,15 +14,45 @@
 const std::string PROJECT_DIR = _PROJECT_DIR;
 
 //! Display a 3D representation showing the cloud and a list of camera with their 6DOf poses
-void showCameras(pcl::texture_mapping::CameraVector cams, pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud)
+void showCameras(pcl::texture_mapping::CameraVector cams, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud=nullptr)
 {
 
 	// visualization object
 	pcl::visualization::PCLVisualizer visu("cameras");
 
+	// add a test surface
+	pcl::PointXYZ p1 = pcl::PointXYZ(0, -100, 50);
+	pcl::PointXYZ p2 = pcl::PointXYZ(50, -100, 0);
+	pcl::PointXYZ p3 = pcl::PointXYZ(25, -200, 25);
+	pcl::PointXYZ arr[3] = { p1 , p2, p3 };
+
+	Eigen::Hyperplane<float, 3> plane =
+		Eigen::Hyperplane<float, 3>::Through(
+			p1.getArray3fMap(),
+			p2.getArray3fMap(),
+			p3.getArray3fMap()
+		);
+	Eigen::Vector3f normal_vec = plane.normal();
+
+	for (int i = 0; i < 3; i++) {
+		int j = i == 2 ? 0 : i + 1;
+
+		std::stringstream ss;
+		ss.str("");
+		ss << "test_surf_line" << i;
+		visu.addLine(arr[i], arr[j], 1.0, 0.0, 1.0, ss.str());
+
+		ss.str("");
+		ss << "test_surf_norm" << i;
+		pcl::PointXYZ norm_point;
+		norm_point.x = normal_vec.x() * 50 + arr[i].x;
+		norm_point.y = normal_vec.y() * 50 + arr[i].y;
+		norm_point.z = normal_vec.z() * 50 + arr[i].z;
+		visu.addLine(arr[i], norm_point, 1.0, 1.0, 0.0, ss.str());
+	}
+
 	// add a visual for each camera at the correct pose
 	for (int i = 0; i < cams.size(); ++i)
-		//for (int i = 0; i < 1; ++i)
 	{
 		// read current camera
 		pcl::TextureMapping<pcl::PointXYZ>::Camera cam = cams[i];
@@ -35,7 +65,7 @@ void showCameras(pcl::texture_mapping::CameraVector cams, pcl::PointCloud<pcl::P
 		float scale = 50.0;
 		//float scale = 1.0;
 		// create a 5-point visual for each camera
-		pcl::PointXYZ p1, p2, p3, p4, p5;
+		pcl::PointXYZ p1, p2, p3, p4, p5, location, view_dir;
 		p1.x = 0; p1.y = 0; p1.z = 0;
 		double dist = 0.75;
 		double angleX, angleY;
@@ -70,7 +100,7 @@ void showCameras(pcl::texture_mapping::CameraVector cams, pcl::PointCloud<pcl::P
 		p5 = pcl::transformPoint(p5, cam.pose);
 		std::stringstream ss;
 		ss << "Cam #" << i + 1;
-		visu.addText3D(ss.str(), p1, 0.1, 1.0, 1.0, 1.0, ss.str());
+		visu.addText3D(ss.str(), p1, 0.1*scale, 1.0, 1.0, 1.0, ss.str());
 
 		ss.str("");
 		ss << "camera_" << i << "line1";
@@ -96,14 +126,40 @@ void showCameras(pcl::texture_mapping::CameraVector cams, pcl::PointCloud<pcl::P
 		ss.str("");
 		ss << "camera_" << i << "line8";
 		visu.addLine(p3, p2, ss.str());
+
+		// visualize the view vector
+		location.x = cam.pose(0, 3);
+		location.y = cam.pose(1, 3);
+		location.z = cam.pose(2, 3);
+
+		view_dir.x = cam.pose(0, 2) * scale + location.x;
+		view_dir.y = cam.pose(1, 2) * scale + location.y;
+		view_dir.z = cam.pose(2, 2) * scale + location.z;
+
+		ss.str("");
+		ss << "camera_" << i << "view_vec";
+		visu.addLine(location, view_dir, 0.0, 0.0, 1.0, ss.str());
+
+		// visualize camera weight with surface
+		Eigen::Vector3f view_vec;
+		view_vec(0) = cam.pose(0, 2);
+		view_vec(1) = cam.pose(1, 2);
+		view_vec(2) = cam.pose(2, 2);
+		float weight = normal_vec.dot(view_vec);
+
+		ss.str("");
+		ss << "camera_weight" << i;
+		visu.addText3D(std::to_string(weight), view_dir, 0.1*scale, 1.0, 1.0, 1.0, ss.str());
 	}
 
 	// add a coordinate system
 	visu.addCoordinateSystem(100.0);
 
 	// add the mesh's cloud (colored on Z axis)
-	pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> color_handler(cloud, "z");
-	visu.addPointCloud(cloud, color_handler, "cloud");
+	if (cloud) {
+		pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> color_handler(cloud, "z");
+		visu.addPointCloud(cloud, color_handler, "cloud");
+	}
 
 	// reset camera
 	visu.resetCamera();
@@ -136,7 +192,9 @@ void custom_seg_demo() {
 	//==> segment using custom func
 	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> tex_coords;
 	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> img_coords;
-	t.segmentUVMeshByCamera(tmesh, my_cams, tex_coords, img_coords);
+	std::vector<std::vector<int>> tri_verts;
+	std::vector<std::vector<float>> cam_weights;
+	t.segmentUVMeshByCamera(tmesh, my_cams, tex_coords, img_coords, tri_verts, cam_weights);
 
 	//==> prepare image files
 	std::vector<std::string> img_files;
@@ -149,7 +207,7 @@ void custom_seg_demo() {
 	//std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/test_panoptic_texture_04.bmp";
 	//std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/kd-tree_occlusion_50_02.bmp";
 	std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/kd-tree_occlusion_all.bmp";
-	t.generateUVTextureFromImages(texture_file_name, tex_coords, img_coords, img_files);
+	t.generateUVTextureFromImages(texture_file_name, tex_coords, img_coords, img_files, tri_verts, cam_weights);
 }
 
 // custom segmentation + texturing demo for a sequence of meshes
@@ -167,6 +225,9 @@ void custom_seg_dir_demo(std::string input_dir, std::string output_dir, std::str
 													// every frame. we prepare the texture files for each frame using `img_files` vector
 	volcap::io::loadCameraParams(calibration_file, my_cams);
 
+	////==> visualize cam view vectors & a tri with surface normals
+	//showCameras(my_cams);
+
 	int seq_start_frame = 380;  // hardcoded for demo!
 	for (int idx_mesh = 0; idx_mesh < meshes.size(); idx_mesh++, seq_start_frame++) {
 		pcl::TextureMesh &mesh = *meshes[idx_mesh];
@@ -174,7 +235,9 @@ void custom_seg_dir_demo(std::string input_dir, std::string output_dir, std::str
 		//==> segment using custom func
 		std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> tex_coords;
 		std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> img_coords;
-		t.segmentUVMeshByCamera(mesh, my_cams, tex_coords, img_coords);
+		std::vector<std::vector<int>> tri_verts;
+		std::vector<std::vector<float>> cam_weights;
+		t.segmentUVMeshByCamera(mesh, my_cams, tex_coords, img_coords, tri_verts, cam_weights);
 
 		//==> prepare image files
 		std::vector<std::string> img_files;
@@ -195,7 +258,7 @@ void custom_seg_dir_demo(std::string input_dir, std::string output_dir, std::str
 		//==> generate texture map using UVAtlas' uv-map, greedy custom segmentation
 		std::string texture_file = mesh_ids[idx_mesh] + ".bmp";
 		std::string texture_file_full = output_dir + "/" + texture_file;
-		t.generateUVTextureFromImages(texture_file_full, tex_coords, img_coords, img_files);
+		t.generateUVTextureFromImages(texture_file_full, tex_coords, img_coords, img_files, tri_verts, cam_weights);
 
 		//==> update TextureMesh material to use new texture file
 		//mesh.tex_materials[0].tex_file = texture_file_full;  // saving full path in texture material
