@@ -21,11 +21,6 @@
       ```bash
       git clone --depth=1 https://github.com/asmjit/asmjit
       git clone --depth=1 https://github.com/blend2d/blend2d
-      mkdir blend2d/build
-      cd blend2d/build
-      cmake -DBLEND2D_TEST=TRUE -G "Visual Studio 15 2017 Win64" ..
-      cmake --build . --config Debug
-      cmake --build . --config Release
       ```
   * FBX SDK 2020.1
     * download: https://www.autodesk.com/developer-network/platform-technologies/fbx-sdk-2020-0 [VS 2017]
