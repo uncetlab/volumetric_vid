@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 			continue;
 
 		//std::cout << entry << '\n' << in_p << '\n' << out_p << '\n';
-		printf("file to be loaded: %s", in_p.string().c_str());
+		printf("file to be loaded: %s\n", in_p.string().c_str());
 
 		// Read in point cloud into cloud_xyzrgbnormals
 		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud_xyzrgbnormals(new pcl::PointCloud<pcl::PointXYZRGBNormal>);

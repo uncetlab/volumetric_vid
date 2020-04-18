@@ -2,6 +2,14 @@
 
 project ("VolumetricVidCMake")
 
+# define a preprocessor variable to get the location of the project's root directory
 add_definitions( -D_PROJECT_DIR=\"${CMAKE_SOURCE_DIR}\" )
 
-add_subdirectory ("demos")
+# The compiled library code is here
+add_subdirectory(src)
+
+# The demo code is here
+add_subdirectory(demos)
+
+# The command line tools will go here
+#add_subdirectory ("apps")
