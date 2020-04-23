@@ -121,32 +121,6 @@ void volcap::io::load_meshes_from_dir(
 //	}
 //}
 
-void volcap::io::load_clouds_from_dir(const std::string dir_name, std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> &clouds, std::vector<std::string> &ids) {
-	boost::filesystem::path input_dir(dir_name);
-
-	boost::filesystem::directory_iterator it{ input_dir };
-	int i = 0;
-	while (it != boost::filesystem::directory_iterator{}) {
-		// Get input / output paths
-		boost::filesystem::directory_entry entry = *it++;
-		boost::filesystem::path in_p = entry.path();
-
-		// skip if entry is a directory
-		if (!boost::filesystem::is_regular_file(in_p))
-			continue;
-
-		printf("loading cloud %i\n", i++);
-
-		std::string cloud_id = in_p.string();
-
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-		pcl::io::loadPLYFile(cloud_id, *cloud);
-
-		clouds.push_back(cloud);
-		ids.push_back(cloud_id);
-	}
-}
-
 ///* loads all PolygonMeshes / TextureMeshes from a dir (assumes every file is a .obj / .ply file)
 // * assumes PolygonMeshes are stored in .ply files
 // * assumes TextureMeshes are stored in .obj files
