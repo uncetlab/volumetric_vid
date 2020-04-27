@@ -45,12 +45,14 @@ namespace volcap {
 		 * @param[in] dir_name
 		 * @param[out] clouds
 		 * @param[out] cloud_filenames	cloud file names (without extensions)
+		 * @param[in] meshes_to_load	number of meshes to load (optional, default: loads every .ply file) 
 		 */
 		template <typename PointT>
 		void load_clouds_from_dir(
 			const std::string dir_name,
 			std::vector<typename pcl::PointCloud<PointT>::Ptr> &clouds,
-			std::vector<std::string> &cloud_filenames
+			std::vector<std::string> &cloud_filenames,
+			int meshes_to_load=0
 		);
 
 		///* loads all PolygonMeshes / TextureMeshes from a dir (assumes every file is a .obj / .ply file)

@@ -5,13 +5,14 @@ template <typename PointT>
 void volcap::io::load_clouds_from_dir(
 	const std::string dir_name,
 	std::vector<typename pcl::PointCloud<PointT>::Ptr> &clouds,
-	std::vector<std::string> &cloud_filenames
+	std::vector<std::string> &cloud_filenames,
+	int meshes_to_load
 ) {
 	boost::filesystem::path input_dir(dir_name);
 
 	boost::filesystem::directory_iterator it{ input_dir };
 	int i = 0;
-	while (it != boost::filesystem::directory_iterator{}) {
+	while (i < meshes_to_load && it != boost::filesystem::directory_iterator{}) {
 		// Get input / output paths
 		boost::filesystem::directory_entry entry = *it++;
 		boost::filesystem::path path = entry.path();
