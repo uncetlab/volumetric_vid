@@ -1,10 +1,14 @@
 ### Installation
   * PCL 1.9.1: https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.9.1
     * download installer: `PCL-1.9.1-AllInOne-msvc2017-win64.exe`
+      * install to default `C:\Program Files\PCL 1.9.1`
     * download pdbs: `pcl-1.9.1-pdb-msvc2017-win64.zip`
       * contains debug info
+      * extract to `C:\Program Files\PCL 1.9.1\bin`
     * download sources:
       * helpful when debugging
+      * extract to `C:\Program Files\PCL 1.9.1\`
+      * when you attempt to step in to some PCL code for the first time it will ask for you to direct it to the source code
     * note: if you want to be able to make changes to PCL source, refer to sec3 on building PCL from source
   * UVAtlas
     * in `volumetric_vid/external`:
