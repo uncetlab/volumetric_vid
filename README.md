@@ -41,9 +41,10 @@
       conda install pyopengl
       conda install jinja2
       pip install pyside  # install via pip bc not available in conda
-      python USD\build_scripts\build_usd.py "C:\Program Files\USD"  # adding --debug breaks it (won't be able to run in Debug mode, but Release / RelWithDebInfo work)
-      # python USD\build_scripts\build_usd.py "C:\Program Files\USD" --debug --no-python
+      python USD\build_scripts\build_usd.py "C:\Program Files\USD"  # adding --debug breaks python (won't be able to run in Debug mode, but Release / RelWithDebInfo work)
+      # python USD\build_scripts\build_usd.py "C:\Program Files\USD-debug" --debug --no-python
       ```
+      * build in debug configuration separately to "C:\Program Files\USD-debug" if you wish to debug
     * add .dll locations to path (e.g. `C:\Program Files\USD\lib` & `C:\Program Files\USD\bin`)
     * if using the usd executables (e.g. `usdview`), you must run the command from a bash shell, it doesn't work in normal windows terminal
 
