@@ -173,6 +173,25 @@ void volcap::texture::Texturing::generateUVTextureFromImages(
 
 void volcap::texture::Texturing::segmentUVMeshByCamera(
 	pcl::TextureMesh &mesh,
+	std::vector<volcap::io::Camera*> &cams,
+	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &tex_coords,
+	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &img_coords,
+	std::vector<std::vector<int>> &tri_verts,
+	std::vector<std::vector<float>> &cam_weights
+) {
+	// convert volcap cam to pcl cam
+	pcl::texture_mapping::CameraVector pcl_cams;
+	for (int i = 0; i < cams.size(); i++) {
+		pcl::texture_mapping::Camera pcl_cam = cams[i]->toPCLCamera();
+		pcl_cams.push_back(pcl_cam);
+	}
+
+	segmentUVMeshByCamera(mesh, pcl_cams, tex_coords, img_coords, tri_verts, cam_weights);
+}
+
+
+void volcap::texture::Texturing::segmentUVMeshByCamera(
+	pcl::TextureMesh &mesh,
 	pcl::texture_mapping::CameraVector cams,
 	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &tex_coords,
 	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &img_coords,
