@@ -1,4 +1,3 @@
-#pragma once
 #include <pcl/point_types.h>
 #include <pcl/surface/poisson.h>
 
@@ -14,17 +13,49 @@ namespace volcap {
 		const float DEFAULT_POINT_WEIGHT = 4.0f;
 
 		/**
-		 * @brief test brief
+		 * @brief calls PCL's SPSR implementation
+		 *
+		 * @param[in] input
+		 * @param[out] output
+		 * @param[in] depth
+		 * @param[in] solver_divide
+		 * @param[in] iso_divide
+		 * @param[in] point_weight
 		 */
-		void compute_mesh(const pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr &input, pcl::PolygonMesh &output,
-			int depth = DEFAULT_DEPTH, int solver_divide = DEFAULT_SOLVER_DIVIDE, int iso_divide = DEFAULT_ISO_DIVIDE, float point_weight = DEFAULT_POINT_WEIGHT);
+		template <typename PointT>
+		void compute_mesh(
+			typename const pcl::PointCloud<PointT>::Ptr &input,
+			pcl::PolygonMesh &output,
+			int depth = DEFAULT_DEPTH,
+			int solver_divide = DEFAULT_SOLVER_DIVIDE,
+			int iso_divide = DEFAULT_ISO_DIVIDE,
+			float point_weight = DEFAULT_POINT_WEIGHT
+		);
 
-		void compute_mesh(const pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr &input, pcl::PointCloud<pcl::PointXYZRGBNormal> &out_points, std::vector<pcl::Vertices> &out_polygons,
-			int depth = DEFAULT_DEPTH, int solver_divide = DEFAULT_SOLVER_DIVIDE, int iso_divide = DEFAULT_ISO_DIVIDE, float point_weight = DEFAULT_POINT_WEIGHT);
+		template <typename PointT>
+		void compute_mesh(
+			typename const pcl::PointCloud<PointT>::Ptr &input,
+			typename pcl::PointCloud<PointT> &out_points,
+			std::vector<pcl::Vertices> &out_polygons,
+			int depth = DEFAULT_DEPTH,
+			int solver_divide = DEFAULT_SOLVER_DIVIDE,
+			int iso_divide = DEFAULT_ISO_DIVIDE,
+			float point_weight = DEFAULT_POINT_WEIGHT
+		);
 
 		/**
-		 *  p: percentage of faces to remove
+		 * @brief calls PCL's mesh decimator
+		 *
+		 * @param[in] input_mesh	
+		 * @param[out] output_mesh
+		 * @param[in] p				percentage of faces to remove
 		 */
-		void decimate_mesh(const pcl::PolygonMesh::Ptr &input_mesh, float p, pcl::PolygonMesh &output_mesh);
+		void decimate_mesh(
+			const pcl::PolygonMesh::Ptr &input_mesh,
+			pcl::PolygonMesh &output_mesh,
+			float p
+		);
 	}
 }
+
+#include <volcap/surface/spsr.hpp>
