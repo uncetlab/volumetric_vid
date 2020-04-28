@@ -108,7 +108,6 @@ void reconstruction_pipeline(std::string in_dir, std::string out_dir, std::vecto
 	}
 
 	// 4. texturing
-	//std::vector<pcl::TextureMesh::Ptr> meshes_tex;
 	volcap::texture::Texturing t;
 
 	//==> prepare image files
@@ -160,17 +159,12 @@ void reconstruction_pipeline(std::string in_dir, std::string out_dir, std::vecto
 		//==> generate texture map using UVAtlas' uv-map, greedy custom segmentation
 		std::string texture_file = cloud_filenames[i] + ".bmp";
 		std::string texture_file_full = out_dir + texture_file;
-		t.generateUVTextureFromImages(texture_file_full, tex_coords, img_coords, img_lists[i], tri_verts, cam_weights);
+		t.generateUVTextureFromImages(texture_file_full, tex_coords, img_coords, img_lists[i],
+			tri_verts, cam_weights, cams[0]->width, cams[0]->height);
 
 		//==> update TextureMesh material to use new texture file
 		//mesh.tex_materials[0].tex_file = texture_file_full;  // saving full path in texture material
-		mesh_tex->tex_materials[0].tex_file = texture_file;  // saving relative path in texture material (preferred if it works)
-		
-		//pcl::TexMaterial tex_mat;
-		//tex_mat.tex_file = texture_file;
-		//mesh_tex->tex_materials.push_back(tex_mat);
-
-		//meshes_tex.push_back(mesh_tex);
+		mesh_tex->tex_materials[0].tex_file = texture_file;  // saving relative path in texture material
 
 		// debug
 		pcl::io::saveOBJFile(out_dir + cloud_filenames[i] + "_textured.obj", *mesh_tex);

@@ -37,6 +37,8 @@ namespace volcap {
 			 * @param[in] img_files		for each cam, the full path of it's captured image
 			 * @param[in] tri_verts		a list of vertex indices (for each img). Assume every 3 make up a tri
 			 * @param[in] cam_weights	a list of cam weights (for each img). Only 1 value per tri => Size of inner
+			 * @param[in] img_width		image resolution width
+			 * @param[in] img_height	image resolution height
 			 *  vec is 1/3 of `tex_coords`, `img_coords` & `tri_verts`
 			 */
 			void generateUVTextureFromImages(
@@ -45,7 +47,9 @@ namespace volcap {
 				std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &img_coords,
 				std::vector<std::string> &img_files,
 				std::vector<std::vector<int>> &tri_verts,
-				std::vector<std::vector<float>> &cam_weights
+				std::vector<std::vector<float>> &cam_weights,
+				int img_width,
+				int img_height
 			);
 
 			/**
