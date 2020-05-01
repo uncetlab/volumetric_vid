@@ -70,7 +70,11 @@ set(FBXSDK_LIBRARIES_RELEASE "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib
 set(FBXSDK_LIBRARIES_DEBUG "C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/debug/libfbxsdk-md.lib;C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/debug/libxml2-md.lib;C:/Program Files/Autodesk/FBX/FBX SDK/2020.0.1/lib/vs2017/x64/debug/zlib-md.lib")
 
 # USD SDK
-set(pxr_DIR "C:/Program Files/USD")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(pxr_DIR "C:/Program Files/USD-debug")
+else()
+	set(pxr_DIR "C:/Program Files/USD")
+endif()
 find_package(pxr REQUIRED CONFIG)
 message(STATUS "PXR_arch_LIBRARY=${PXR_arch_LIBRARY}")
 message(STATUS "PXR_LIBRARIES=${PXR_LIBRARIES}")

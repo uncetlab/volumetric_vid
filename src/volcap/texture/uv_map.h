@@ -16,7 +16,7 @@ namespace volcap {
 		 */
 		void generateUVMapping(
 			pcl::PolygonMesh &pmesh,
-			pcl::TextureMesh& tmesh,
+			pcl::TextureMesh &tmesh,
 			float maxStretch=0.f
 		);
 	}

@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 
 		// Compute SPSR
 		pcl::PolygonMesh::Ptr spsr_mesh(boost::make_shared<pcl::PolygonMesh>());
-		volcap::surface::compute_mesh(cloud_xyzrgbnormals, *spsr_mesh);
+		volcap::surface::compute_mesh<pcl::PointXYZRGBNormal>(cloud_xyzrgbnormals, *spsr_mesh);
 
 		// Decimate mesh
 		float percent_faces_removed = 0.8;

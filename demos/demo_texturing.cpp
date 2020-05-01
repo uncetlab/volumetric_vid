@@ -207,7 +207,8 @@ void custom_seg_demo() {
 	//std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/test_panoptic_texture_04.bmp";
 	//std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/kd-tree_occlusion_50_02.bmp";
 	std::string texture_file_name = "C:/Users/maxhu/Desktop/uvatlas_example/texture_mapping_tests/kd-tree_occlusion_all.bmp";
-	t.generateUVTextureFromImages(texture_file_name, tex_coords, img_coords, img_files, tri_verts, cam_weights);
+	t.generateUVTextureFromImages(texture_file_name, tex_coords, img_coords, img_files,
+		tri_verts, cam_weights, my_cams[0].width, my_cams[0].height);
 }
 
 // custom segmentation + texturing demo for a sequence of meshes
@@ -258,7 +259,8 @@ void custom_seg_dir_demo(std::string input_dir, std::string output_dir, std::str
 		//==> generate texture map using UVAtlas' uv-map, greedy custom segmentation
 		std::string texture_file = mesh_ids[idx_mesh] + ".bmp";
 		std::string texture_file_full = output_dir + "/" + texture_file;
-		t.generateUVTextureFromImages(texture_file_full, tex_coords, img_coords, img_files, tri_verts, cam_weights);
+		t.generateUVTextureFromImages(texture_file_full, tex_coords, img_coords, img_files, 
+			tri_verts, cam_weights, my_cams[0].width, my_cams[0].height);
 
 		//==> update TextureMesh material to use new texture file
 		//mesh.tex_materials[0].tex_file = texture_file_full;  // saving full path in texture material

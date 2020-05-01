@@ -73,7 +73,7 @@ void volcap::viz::viz_seq_dual(const std::string dir_name1, const std::string di
 		volcap::io::load_meshes_from_dir(dir_name1, meshes_1, ids_1);
 		size_1 = meshes_1.size();
 	} else if (type1 == "cloud") {
-		volcap::io::load_clouds_from_dir(dir_name1, clouds_1, ids_1);
+		volcap::io::load_clouds_from_dir<pcl::PointXYZRGB>(dir_name1, clouds_1, ids_1);
 		size_1 = clouds_1.size();
 	} else {
 		// error
@@ -83,7 +83,7 @@ void volcap::viz::viz_seq_dual(const std::string dir_name1, const std::string di
 		volcap::io::load_meshes_from_dir(dir_name2, meshes_2, ids_2);
 		size_2 = meshes_2.size();
 	} else if (type2 == "cloud") {
-		volcap::io::load_clouds_from_dir(dir_name2, clouds_2, ids_2);
+		volcap::io::load_clouds_from_dir<pcl::PointXYZRGB>(dir_name2, clouds_2, ids_2);
 		size_2 = clouds_2.size();
 	} else {
 		// error

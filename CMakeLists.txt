@@ -11,5 +11,5 @@ add_subdirectory(src)
 # The demo code is here
 add_subdirectory(demos)
 
-# The command line tools will go here
-#add_subdirectory ("apps")
+# The command line tools are here
+add_subdirectory ("apps")

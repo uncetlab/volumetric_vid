@@ -1,4 +1,5 @@
 #include <string>
+#include <volcap/io/io_cam.h>
 
 //! the volcap namespace
 namespace volcap {
@@ -40,5 +41,12 @@ namespace volcap {
 
 		//void viz_mesh_seq_triple();
 
+		template <typename PointT>
+		void viz_pc(
+			typename pcl::PointCloud<PointT>::Ptr cloud,
+			std::vector<volcap::io::Camera*> cams
+		);
 	}
 }
+
+#include <volcap/viz/viz.hpp>

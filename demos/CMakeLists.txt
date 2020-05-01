@@ -38,7 +38,6 @@ add_executable(DemoVCLData "demo_vcl_data.cpp")
 #add_executable(DemoUSDBillboard "demo_usd_billboard.cpp")
 
 # include volcap for all targets
-include_directories("../src")
 target_link_libraries(DemoMLS PRIVATE volcap_library ${PCL_LIBRARIES})
 target_link_libraries(DemoSPSR PRIVATE volcap_library ${PCL_LIBRARIES})
 target_link_libraries(DemoUVMap PRIVATE volcap_library ${PCL_LIBRARIES})
@@ -46,4 +45,4 @@ target_link_libraries(DemoTexturing PRIVATE volcap_library ${PCL_LIBRARIES})
 target_link_libraries(DemoFbx PRIVATE volcap_library ${PCL_LIBRARIES})
 target_link_libraries(DemoUSD PRIVATE volcap_library ${PCL_LIBRARIES})
 target_link_libraries(DemoVisualizer PRIVATE volcap_library)
-target_link_libraries(DemoVCLData PRIVATE ${PCL_LIBRARIES})
+target_link_libraries(DemoVCLData PRIVATE volcap_library ${PCL_LIBRARIES})

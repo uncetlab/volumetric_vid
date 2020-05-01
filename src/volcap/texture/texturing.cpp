@@ -59,7 +59,9 @@ void volcap::texture::Texturing::generateUVTextureFromImages(
 	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &img_coords,
 	std::vector<std::string> &img_files,
 	std::vector<std::vector<int>> &tri_verts,
-	std::vector<std::vector<float>> &cam_weights
+	std::vector<std::vector<float>> &cam_weights,
+	int img_width,
+	int img_height
 ) {
 	//==> validate input
 	// ASSERT( img_coords.size() == tex_coords.size() == img_files.size() )
@@ -123,8 +125,8 @@ void volcap::texture::Texturing::generateUVTextureFromImages(
 			Eigen::Vector2f img_pt2 = img_coords[cam_idx][vertex_idx + 2];
 
 			Eigen::Matrix3f img_pts;	//!< starting points
-			img_pts << img_pt0.x() * 1920, img_pt1.x() * 1920, img_pt2.x() * 1920,
-				(1.0 - img_pt0.y()) * 1080, (1.0 - img_pt1.y()) * 1080, (1.0 - img_pt2.y()) * 1080,
+			img_pts << img_pt0.x() * img_width, img_pt1.x() * img_width, img_pt2.x() * img_width,
+				(1.0 - img_pt0.y()) * img_height, (1.0 - img_pt1.y()) * img_height, (1.0 - img_pt2.y()) * img_height,
 				1, 1, 1;
 
 			Eigen::Matrix3f uv_pts;		//!< points after transformation is applied
@@ -170,6 +172,25 @@ void volcap::texture::Texturing::generateUVTextureFromImages(
 	img.writeToFile(file_name.c_str(), codec);
 
 }
+
+void volcap::texture::Texturing::segmentUVMeshByCamera(
+	pcl::TextureMesh &mesh,
+	std::vector<volcap::io::Camera*> &cams,
+	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &tex_coords,
+	std::vector<std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>> &img_coords,
+	std::vector<std::vector<int>> &tri_verts,
+	std::vector<std::vector<float>> &cam_weights
+) {
+	// convert volcap cam to pcl cam
+	pcl::texture_mapping::CameraVector pcl_cams;
+	for (int i = 0; i < cams.size(); i++) {
+		pcl::texture_mapping::Camera pcl_cam = cams[i]->toPCLCamera();
+		pcl_cams.push_back(pcl_cam);
+	}
+
+	segmentUVMeshByCamera(mesh, pcl_cams, tex_coords, img_coords, tri_verts, cam_weights);
+}
+
 
 void volcap::texture::Texturing::segmentUVMeshByCamera(
 	pcl::TextureMesh &mesh,

@@ -1,10 +1,14 @@
 ### Installation
   * PCL 1.9.1: https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.9.1
     * download installer: `PCL-1.9.1-AllInOne-msvc2017-win64.exe`
+      * install to default `C:\Program Files\PCL 1.9.1`
     * download pdbs: `pcl-1.9.1-pdb-msvc2017-win64.zip`
       * contains debug info
+      * extract to `C:\Program Files\PCL 1.9.1\bin`
     * download sources:
       * helpful when debugging
+      * extract to `C:\Program Files\PCL 1.9.1\`
+      * when you attempt to step in to some PCL code for the first time it will ask for you to direct it to the source code
     * note: if you want to be able to make changes to PCL source, refer to sec3 on building PCL from source
   * UVAtlas
     * in `volumetric_vid/external`:
@@ -37,9 +41,10 @@
       conda install pyopengl
       conda install jinja2
       pip install pyside  # install via pip bc not available in conda
-      python USD\build_scripts\build_usd.py "C:\Program Files\USD"  # adding --debug breaks it (won't be able to run in Debug mode, but Release / RelWithDebInfo work)
-      # python USD\build_scripts\build_usd.py "C:\Program Files\USD" --debug --no-python
+      python USD\build_scripts\build_usd.py "C:\Program Files\USD"  # adding --debug breaks python (won't be able to run in Debug mode, but Release / RelWithDebInfo work)
+      # python USD\build_scripts\build_usd.py "C:\Program Files\USD-debug" --debug --no-python
       ```
+      * build in debug configuration separately to "C:\Program Files\USD-debug" if you wish to debug
     * add .dll locations to path (e.g. `C:\Program Files\USD\lib` & `C:\Program Files\USD\bin`)
     * if using the usd executables (e.g. `usdview`), you must run the command from a bash shell, it doesn't work in normal windows terminal
 
